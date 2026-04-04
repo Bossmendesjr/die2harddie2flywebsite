@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Services — Die2Hard Die2Fly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --or:#F26522;--or2:#FF8C42;--blk:#0A0A0A;--wht:#F2EDE6;
+  --grey:#1C1C1C;--mid:#2A2A2A;
+  --serif:"IM Fell English",serif;--vt:"VT323",monospace;--mono:"Share Tech Mono",monospace;
+}
+/* THEME B — inverted */
+body.theme-b{--blk:#F2EDE6;--wht:#0A0A0A;--grey:#E0DAD0;--mid:#D0CAC0;--or:#C44A00;}
+body.theme-b .ticker-band{background:var(--or)}
+body.theme-b .mq-band{background:var(--or)}
+body.theme-b #cur svg polygon{fill:var(--or)}
+body.theme-b .trail{background:var(--or)}
+
+html{scroll-behavior:smooth}
+body{background:var(--blk);color:var(--wht);font-family:var(--mono);overflow-x:hidden;cursor:none;transition:background 0.4s,color 0.4s}
+
+/* CURSOR */
+#cur{position:fixed;top:0;left:0;width:24px;height:28px;z-index:99999;pointer-events:none}
+#cur svg{width:100%;height:100%}
+#cur.clicking svg polygon{fill:#fff;transform-origin:center;transform:scale(0.85)}
+.trail{position:fixed;width:6px;height:6px;border-radius:50%;background:var(--or);pointer-events:none;z-index:99990;opacity:0;transform:translate(-50%,-50%)}
+
+/* SCANLINES */
+body::after{content:"";position:fixed;inset:0;z-index:9998;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px)}
+body::before{content:"";position:fixed;inset:0;z-index:9997;pointer-events:none;opacity:0.028;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px 180px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--blk)}::-webkit-scrollbar-thumb{background:var(--or);border-left:1px solid #000}
+
+/* TICKER */
+.ticker-band{overflow:hidden;background:var(--or);padding:7px 0;white-space:nowrap;position:relative;z-index:50;border-bottom:2px solid #000}
+.ticker-track{display:inline-block;animation:tickRun 20s linear infinite;font-family:var(--vt);font-size:20px;color:var(--blk);letter-spacing:0.12em}
+.tsep{margin:0 20px;opacity:0.4}
+@keyframes tickRun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:200;background:var(--blk);border-bottom:2px solid var(--or);display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:52px}
+nav::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--or)}
+.nav-logo{font-family:var(--vt);font-size:26px;color:var(--or);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase}
+.nav-logo em{font-style:normal;color:var(--wht)}
+.nav-links{display:flex;list-style:none;gap:0}
+.nav-links a{font-family:var(--vt);font-size:17px;color:rgba(242,237,230,0.55);text-decoration:none;text-transform:uppercase;letter-spacing:0.1em;padding:0 18px;height:52px;display:flex;align-items:center;border-left:1px solid rgba(242,101,34,0.12);transition:background 0.15s,color 0.15s}
+.nav-links a:hover,.nav-links a.active{background:rgba(242,101,34,0.1);color:var(--or)}
+body.theme-b .nav-links a{color:rgba(10,10,10,0.55)}
+body.theme-b .nav-links a:hover{color:var(--or)}
+.nav-cta{font-family:var(--vt);font-size:17px;letter-spacing:0.12em;color:var(--blk);background:var(--or);padding:6px 18px;text-decoration:none;text-transform:uppercase;border:2px solid var(--or);box-shadow:inset -2px -2px 0 rgba(0,0,0,0.4),inset 2px 2px 0 rgba(255,255,255,0.15);transition:background 0.15s}
+.nav-cta:hover{background:var(--or2)}
+
+/* NAV CONTROLS — theme + lang */
+.nav-controls{display:flex;align-items:center;gap:0;border-left:1px solid rgba(242,101,34,0.12)}
+.ctrl-btn{font-family:var(--vt);font-size:15px;letter-spacing:0.1em;color:rgba(242,101,34,0.55);background:transparent;border:none;padding:0 14px;height:52px;cursor:none;display:flex;align-items:center;gap:5px;transition:color 0.15s,background 0.15s;text-transform:uppercase}
+.ctrl-btn:hover{background:rgba(242,101,34,0.08);color:var(--or)}
+.ctrl-btn.active{color:var(--or)}
+.ctrl-sep{width:1px;height:24px;background:rgba(242,101,34,0.15)}
+
+/* MARQUEE */
+.mq-band{overflow:hidden;background:var(--or);border-top:2px solid #000;border-bottom:2px solid #000;padding:10px 0;white-space:nowrap}
+.mq-track{display:inline-block;animation:mqRun 14s linear infinite;font-family:"IM Fell English",serif;font-style:italic;font-size:24px;color:var(--blk);letter-spacing:0.03em}
+.ms{margin:0 24px;opacity:0.35}
+@keyframes mqRun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* SECTION TAG */
+section{position:relative;overflow:hidden}
+.sec-tag{font-family:var(--vt);font-size:16px;letter-spacing:0.3em;color:var(--or);text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:48px}
+.sec-tag::before{content:"//";color:rgba(242,101,34,0.4)}
+
+/* PAGE HERO BANNER */
+.page-hero{position:relative;min-height:46vh;display:flex;flex-direction:column;justify-content:center;padding:80px 52px 56px;overflow:hidden;background:var(--blk)}
+.pg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(242,101,34,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(242,101,34,0.08) 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
+.pg-stripe{position:absolute;top:-20%;right:-5%;width:52%;height:140%;background:var(--grey);transform:skewX(-8deg);z-index:1;pointer-events:none;overflow:hidden}
+.pg-stripe::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(242,101,34,0.055) 1px,transparent 1px),linear-gradient(90deg,rgba(242,101,34,0.055) 1px,transparent 1px);background-size:24px 24px}
+.pg-accent{position:absolute;left:0;top:0;bottom:0;width:6px;background:repeating-linear-gradient(180deg,var(--or) 0px,var(--or) 18px,transparent 18px,transparent 22px);z-index:10}
+.pg-eyebrow{font-family:var(--vt);font-size:17px;letter-spacing:0.25em;color:var(--or);text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:10px;position:relative;z-index:5;opacity:0;animation:fadeUp 0.6s ease 0.1s forwards}
+.pg-eyebrow::before{content:"► ";font-size:10px}
+.pg-title{font-family:"IM Fell English",serif;font-style:italic;line-height:0.88;position:relative;z-index:5;opacity:0;animation:fadeUp 0.7s ease 0.25s forwards}
+.pg-t1{display:block;font-size:clamp(72px,12vw,150px);color:var(--or);text-shadow:4px 4px 0 #000,8px 8px 0 rgba(242,101,34,0.18)}
+.pg-t2{display:block;font-size:clamp(40px,7vw,90px);color:var(--wht);text-shadow:3px 3px 0 rgba(0,0,0,0.5)}
+.pg-sub{font-family:var(--vt);font-size:18px;letter-spacing:0.2em;color:rgba(242,237,230,0.38);text-transform:uppercase;margin-top:24px;position:relative;z-index:5;opacity:0;animation:fadeUp 0.6s ease 0.4s forwards}
+body.theme-b .pg-sub{color:rgba(10,10,10,0.38)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* FOOTER */
+footer{background:var(--blk);border-top:2px solid var(--or);padding:28px 52px;display:flex;justify-content:space-between;align-items:center}
+.f-logo{font-family:var(--vt);font-size:22px;color:var(--or);letter-spacing:0.08em;text-decoration:none}
+.f-copy{font-family:var(--vt);font-size:14px;letter-spacing:0.12em;color:rgba(242,237,230,0.2);text-transform:uppercase}
+body.theme-b .f-copy{color:rgba(10,10,10,0.3)}
+.f-ig{font-family:var(--vt);font-size:14px;letter-spacing:0.15em;color:rgba(242,101,34,0.55);text-decoration:none;text-transform:uppercase;transition:color 0.2s}
+.f-ig:hover{color:var(--or)}
+
+/* REVEAL */
+.rev{opacity:0;transform:translateY(22px);transition:opacity 0.7s ease,transform 0.7s cubic-bezier(.16,1,.3,1)}
+.rev.on{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.07s}.d2{transition-delay:.14s}.d3{transition-delay:.21s}
+.d4{transition-delay:.28s}.d5{transition-delay:.35s}.d6{transition-delay:.42s}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  nav{padding:0 16px}.nav-links{display:none}
+  .page-hero{padding:52px 24px 40px}
+  footer{padding:20px 24px;flex-direction:column;gap:10px;text-align:center}
+}
+
+
+#services{background:var(--blk);padding:100px 52px}
+.svc-header{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:end;margin-bottom:64px}
+.svc-headline{font-family:"IM Fell English",serif;font-style:italic;font-size:clamp(48px,6vw,80px);line-height:0.95;color:var(--wht)}
+body.theme-b .svc-headline{color:var(--wht)}
+.svc-headline span{color:var(--or)}
+.svc-intro{font-family:var(--vt);font-size:17px;line-height:1.7;color:rgba(242,237,230,0.45);letter-spacing:0.04em;padding-bottom:4px}
+body.theme-b .svc-intro{color:rgba(10,10,10,0.5)}
+.svc-featured{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:2px}
+.svc-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;margin-bottom:2px}
+.svc-card{background:var(--grey);padding:44px 40px;position:relative;overflow:hidden;border:1px solid rgba(242,101,34,0.08);transition:background 0.25s,transform 0.25s}
+.svc-card.big{padding:56px 48px}
+.svc-card::before,.svc-card::after{content:"";position:absolute;width:18px;height:18px;border-color:var(--or);border-style:solid;opacity:0;transition:opacity 0.3s}
+.svc-card::before{top:10px;left:10px;border-width:1px 0 0 1px}
+.svc-card::after{bottom:10px;right:10px;border-width:0 1px 1px 0}
+.svc-card:hover{background:rgba(242,101,34,0.06);transform:translateY(-3px)}
+.svc-card:hover::before,.svc-card:hover::after{opacity:1}
+.svc-n{font-family:var(--vt);font-size:13px;letter-spacing:0.2em;color:rgba(242,101,34,0.35);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.svc-n::before{content:"["}.svc-n::after{content:"]"}
+.svc-nm{font-family:"IM Fell English",serif;font-style:italic;color:var(--wht);margin-bottom:16px;line-height:1.1}
+body.theme-b .svc-nm{color:var(--wht)}
+.svc-card.big .svc-nm{font-size:38px}
+.svc-card:not(.big) .svc-nm{font-size:26px}
+.svc-desc{font-family:var(--vt);font-size:16px;line-height:1.75;color:rgba(242,237,230,0.42);letter-spacing:0.03em}
+body.theme-b .svc-desc{color:rgba(10,10,10,0.48)}
+.svc-card.big .svc-desc{font-size:18px}
+.svc-list{list-style:none;margin-top:20px;display:flex;flex-direction:column;gap:8px}
+.svc-list li{font-family:var(--vt);font-size:16px;color:rgba(242,237,230,0.45);letter-spacing:0.04em;display:flex;align-items:center;gap:10px}
+body.theme-b .svc-list li{color:rgba(10,10,10,0.5)}
+.svc-list li::before{content:"▸";color:var(--or);font-size:12px;flex-shrink:0}
+.svc-tag{display:inline-block;margin-top:24px;font-family:var(--vt);font-size:14px;letter-spacing:0.18em;text-transform:uppercase;color:var(--or);border:1px solid rgba(242,101,34,0.35);padding:4px 14px;box-shadow:inset -1px -1px 0 rgba(0,0,0,0.4),inset 1px 1px 0 rgba(255,255,255,0.05)}
+.svc-icon{position:absolute;bottom:28px;right:36px;font-family:var(--vt);font-size:80px;color:rgba(242,101,34,0.06);line-height:1;pointer-events:none;user-select:none}
+.svc-card.big .svc-icon{font-size:120px;bottom:20px;right:28px}
+@media(max-width:960px){#services{padding:64px 24px}.svc-header,.svc-featured,.svc-row{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div id="cur">
+  <svg viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="2,2 2,22 7,17 11,26 13.5,25 9.5,16 16,16" fill="#F26522" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
+  </svg>
+</div>
+<div class="trail" id="t1"></div>
+<div class="trail" id="t2"></div>
+<div class="trail" id="t3"></div>
+<div class="trail" id="t4"></div>
+<div class="trail" id="t5"></div>
+<div class="ticker-band">
+  <span class="ticker-track">
+    DIE2HARD <span class="tsep">★</span> DIE2FLY <span class="tsep">★</span>
+    CREATIVE ECOSYSTEM <span class="tsep">★</span> RAW TALENT <span class="tsep">★</span>
+    REAL PLATFORM <span class="tsep">★</span> INDIVIDUALITY OVER CONFORMITY <span class="tsep">★</span>
+    COMMUNITY BEFORE PROFIT <span class="tsep">★</span> VISUAL IDENTITY AS POWER <span class="tsep">★</span>
+    DIE2HARD <span class="tsep">★</span> DIE2FLY <span class="tsep">★</span>
+    CREATIVE ECOSYSTEM <span class="tsep">★</span> RAW TALENT <span class="tsep">★</span>
+    REAL PLATFORM <span class="tsep">★</span> INDIVIDUALITY OVER CONFORMITY <span class="tsep">★</span>
+    COMMUNITY BEFORE PROFIT <span class="tsep">★</span> VISUAL IDENTITY AS POWER <span class="tsep">★</span>
+  </span>
+</div>
+<nav>
+  <a class="nav-logo" href="index.html">Die2Hard <em>Die2Fly</em></a>
+  <ul class="nav-links"><li><a href="about.html" data-en="About" data-pt="Sobre">About</a></li><li><a href="team.html" data-en="Team" data-pt="Equipa">Team</a></li><li><a href="services.html" class="active" data-en="Services" data-pt="Serviços">Services</a></li><li><a href="process.html" data-en="Process" data-pt="Processo">Process</a></li><li><a href="contact.html" data-en="Contact" data-pt="Contacto">Contact</a></li></ul>
+  <div class="nav-controls">
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="lang-btn">PT</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="theme-btn">[ THEME B ]</button>
+    <div class="ctrl-sep"></div>
+    <a class="nav-cta" href="contact.html" data-en="[ Contact ]" data-pt="[ Contacto ]">[ Contact ]</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="pg-grid"></div><div class="pg-stripe"></div><div class="pg-accent"></div>
+  <div class="pg-eyebrow" data-en="What We Offer" data-pt="O Que Oferecemos">What We Offer</div>
+  <h1 class="pg-title">
+    <span class="pg-t1" data-en="Our" data-pt="Os Nossos">Our</span>
+    <span class="pg-t2" data-en="Services." data-pt="Serviços.">Services.</span>
+  </h1>
+  <p class="pg-sub" data-en="Built around your vision. Every time." data-pt="Construído em torno da tua visão. Sempre.">Built around your vision. Every time.</p>
+</div>
+
+<section id="services">
+  <div class="svc-header">
+    <div class="rev">
+      <h2 class="svc-headline" data-en-html="What we<br><span>build for you.</span>" data-pt-html="O que<br><span>construímos para ti.</span>">What we<br><span>build for you.</span></h2>
+    </div>
+    <p class="svc-intro rev d2" data-en="Every production assembled from scratch — the right people, the right tools, the right energy. Built around your vision and no one else's. No templates. No compromise." data-pt="Cada produção montada de raiz — as pessoas certas, as ferramentas certas, a energia certa. Construído em torno da tua visão e de mais ninguém. Sem templates. Sem compromisso.">Every production assembled from scratch — the right people, the right tools, the right energy. Built around your vision and no one else's. No templates. No compromise.</p>
+  </div>
+
+  <div class="svc-featured">
+    <div class="svc-card big rev d1">
+      <div class="svc-n">01</div>
+      <div class="svc-nm" data-en="Visual Content Production" data-pt="Produção de Conteúdo Visual">Visual Content Production</div>
+      <p class="svc-desc" data-en="Full photo and video productions designed around each creative's individual aesthetic. Every frame built from your identity, not a template." data-pt="Produções completas de foto e vídeo desenhadas em torno da estética individual de cada criativo. Cada frame construído a partir da tua identidade, não de um template.">Full photo and video productions designed around each creative's individual aesthetic. Every frame built from your identity, not a template.</p>
+      <ul class="svc-list">
+        <li data-en="Concept development &amp; moodboarding" data-pt="Desenvolvimento de conceito &amp; moodboard">Concept development &amp; moodboarding</li>
+        <li data-en="Set design &amp; art direction" data-pt="Design de cenário &amp; direção artística">Set design &amp; art direction</li>
+        <li data-en="Photo &amp; video capture" data-pt="Captura de foto &amp; vídeo">Photo &amp; video capture</li>
+        <li data-en="Post-production &amp; colour grading" data-pt="Pós-produção &amp; color grading">Post-production &amp; colour grading</li>
+        <li data-en="Final delivery for all platforms" data-pt="Entrega final para todas as plataformas">Final delivery for all platforms</li>
+      </ul>
+      <span class="svc-tag" data-en="Photography · Film · Direction" data-pt="Fotografia · Cinema · Direção">Photography · Film · Direction</span>
+      <div class="svc-icon">◉</div>
+    </div>
+    <div class="svc-card big rev d2">
+      <div class="svc-n">02</div>
+      <div class="svc-nm" data-en="Talent Platform &amp; Development" data-pt="Plataforma &amp; Desenvolvimento de Talentos">Talent Platform &amp; Development</div>
+      <p class="svc-desc" data-en="A real base for models, artists, and creatives who have talent but lack access. Structure, visibility, and opportunities — without asking you to become someone else." data-pt="Uma base real para modelos, artistas e criativos que têm talento mas carecem de acesso. Estrutura, visibilidade e oportunidades — sem te pedir para seres outra pessoa.">A real base for models, artists, and creatives who have talent but lack access. Structure, visibility, and opportunities — without asking you to become someone else.</p>
+      <ul class="svc-list">
+        <li data-en="Model &amp; artist onboarding" data-pt="Integração de modelos &amp; artistas">Model &amp; artist onboarding</li>
+        <li data-en="Portfolio &amp; profile building" data-pt="Construção de portfólio &amp; perfil">Portfolio &amp; profile building</li>
+        <li data-en="Access to production network" data-pt="Acesso à rede de produção">Access to production network</li>
+        <li data-en="Booking &amp; opportunity pipeline" data-pt="Pipeline de bookings &amp; oportunidades">Booking &amp; opportunity pipeline</li>
+        <li data-en="Creative mentorship" data-pt="Mentoria criativa">Creative mentorship</li>
+      </ul>
+      <span class="svc-tag" data-en="Models · Artists · Creatives" data-pt="Modelos · Artistas · Criativos">Models · Artists · Creatives</span>
+      <div class="svc-icon">⬡</div>
+    </div>
+  </div>
+
+  <div class="svc-row">
+    <div class="svc-card rev d1">
+      <div class="svc-n">03</div>
+      <div class="svc-nm" data-en="Brand Identity &amp; Visual Design" data-pt="Identidade de Marca &amp; Design Visual">Brand Identity &amp; Visual Design</div>
+      <p class="svc-desc" data-en="Visual systems that carry power. Logos, typography, colour, layout — built to last and impossible to ignore." data-pt="Sistemas visuais que carregam poder. Logótipos, tipografia, cor, layout — construídos para durar e impossíveis de ignorar.">Visual systems that carry power. Logos, typography, colour, layout — built to last and impossible to ignore.</p>
+      <ul class="svc-list">
+        <li data-en="Logo &amp; identity design" data-pt="Design de logótipo &amp; identidade">Logo &amp; identity design</li>
+        <li data-en="Posters, covers &amp; graphics" data-pt="Cartazes, capas &amp; gráficos">Posters, covers &amp; graphics</li>
+        <li data-en="Social media assets" data-pt="Ativos para redes sociais">Social media assets</li>
+      </ul>
+      <span class="svc-tag" data-en="Branding · Design" data-pt="Branding · Design">Branding · Design</span>
+      <div class="svc-icon">◈</div>
+    </div>
+    <div class="svc-card rev d2">
+      <div class="svc-n">04</div>
+      <div class="svc-nm" data-en="Events &amp; Social Organisation" data-pt="Eventos &amp; Organização Social">Events &amp; Social Organisation</div>
+      <p class="svc-desc" data-en="Creative layer for bars, brands, nightlife, and cultural events. We handle the visual identity and execution from promotion to the night itself." data-pt="Camada criativa para bares, marcas, vida noturna e eventos culturais. Tratamos da identidade visual e execução desde a promoção até à noite em si.">Creative layer for bars, brands, nightlife, and cultural events. We handle the visual identity and execution from promotion to the night itself.</p>
+      <ul class="svc-list">
+        <li data-en="Event branding &amp; flyers" data-pt="Branding de eventos &amp; flyers">Event branding &amp; flyers</li>
+        <li data-en="On-site photo &amp; video" data-pt="Foto &amp; vídeo no local">On-site photo &amp; video</li>
+        <li data-en="Social media coverage" data-pt="Cobertura nas redes sociais">Social media coverage</li>
+      </ul>
+      <span class="svc-tag" data-en="Events · Culture · Nightlife" data-pt="Eventos · Cultura · Vida Noturna">Events · Culture · Nightlife</span>
+      <div class="svc-icon">◇</div>
+    </div>
+    <div class="svc-card rev d3">
+      <div class="svc-n">05</div>
+      <div class="svc-nm" data-en="Creative Direction &amp; Strategy" data-pt="Direção Criativa &amp; Estratégia">Creative Direction &amp; Strategy</div>
+      <p class="svc-desc" data-en="Define the angle, assemble curated teams per project, and ensure every output is coherent, sharp, and authentic to the vision." data-pt="Definir o ângulo, montar equipas por projeto e garantir que cada output é coerente, afiado e autêntico à visão.">Define the angle, assemble curated teams per project, and ensure every output is coherent, sharp, and authentic to the vision.</p>
+      <ul class="svc-list">
+        <li data-en="Campaign concepting" data-pt="Conceção de campanhas">Campaign concepting</li>
+        <li data-en="Team curation per production" data-pt="Curadoria de equipa por produção">Team curation per production</li>
+        <li data-en="Feedback loop &amp; evolution" data-pt="Feedback loop &amp; evolução">Feedback loop &amp; evolution</li>
+      </ul>
+      <span class="svc-tag" data-en="Direction · Strategy" data-pt="Direção · Estratégia">Direction · Strategy</span>
+      <div class="svc-icon">◎</div>
+    </div>
+  </div>
+
+  <div class="svc-card rev" style="margin-top:2px;display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap;padding:40px 48px">
+    <div>
+      <div class="svc-n">06</div>
+      <div class="svc-nm" style="font-size:30px" data-en="Social Media Management &amp; Distribution" data-pt="Gestão de Redes Sociais &amp; Distribuição">Social Media Management &amp; Distribution</div>
+      <p class="svc-desc" style="max-width:600px;margin-top:10px" data-en="Content strategy, scheduling, and community building. Once work is made, we make sure it reaches the right audience — filtered by creative direction, never by trending noise." data-pt="Estratégia de conteúdo, agendamento e construção de comunidade. Depois do trabalho feito, garantimos que chega à audiência certa — filtrado pela direção criativa, nunca pelo ruído das tendências.">Content strategy, scheduling, and community building. Once work is made, we make sure it reaches the right audience — filtered by creative direction, never by trending noise.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;flex-shrink:0">
+      <span class="svc-tag" data-en="Content · Distribution" data-pt="Conteúdo · Distribuição">Content · Distribution</span>
+      <span class="svc-tag" style="border-color:rgba(242,101,34,0.15);color:rgba(242,237,230,0.3)" data-en="Community · Growth" data-pt="Comunidade · Crescimento">Community · Growth</span>
+    </div>
+  </div>
+</section>
+
+<div class="mq-band">
+  <span class="mq-track">
+    Die2Hard Die2Fly <span class="ms">✦</span>
+    Give Creatives A Voice <span class="ms">✦</span>
+    Underground To Commercial <span class="ms">✦</span>
+    Build Bold. Stay Raw. <span class="ms">✦</span>
+    Platform. Structure. Access. <span class="ms">✦</span>
+    Die2Hard Die2Fly <span class="ms">✦</span>
+    Give Creatives A Voice <span class="ms">✦</span>
+    Underground To Commercial <span class="ms">✦</span>
+    Build Bold. Stay Raw. <span class="ms">✦</span>
+    Platform. Structure. Access. <span class="ms">✦</span>
+  </span>
+</div>
+<footer>
+  <a class="f-logo" href="index.html">DIE2HARD DIE2FLY</a>
+  <span class="f-copy">© 2026 — All Rights Reserved</span>
+  <a class="f-ig" href="https://www.instagram.com/die2harddie2fly" target="_blank">@die2harddie2fly ↗</a>
+</footer>
+<script>
+
+// CURSOR
+const cur=document.getElementById('cur');
+const trails=[1,2,3,4,5].map(i=>document.getElementById('t'+i));
+let mx=0,my=0;const hist=[];
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cur.style.left=mx+'px';cur.style.top=my+'px';
+  hist.unshift({x:mx,y:my});if(hist.length>30)hist.pop();
+});
+document.addEventListener('mousedown',()=>cur.classList.add('clicking'));
+document.addEventListener('mouseup',()=>setTimeout(()=>cur.classList.remove('clicking'),100));
+(function a(){
+  trails.forEach((t,i)=>{
+    const idx=Math.min((i+1)*5,hist.length-1);
+    if(hist[idx]){t.style.left=hist[idx].x+'px';t.style.top=hist[idx].y+'px';t.style.opacity=(0.55-i*0.1).toString();t.style.transform=`translate(-50%,-50%) scale(${1-i*0.15})`;}
+  });
+  requestAnimationFrame(a);
+})();
+
+// SCROLL REVEAL
+const io=new IntersectionObserver(e=>e.forEach(n=>{if(n.isIntersecting)n.target.classList.add('on')}),{threshold:0.1});
+document.querySelectorAll('.rev').forEach(el=>io.observe(el));
+
+// CRT FLICKER
+setInterval(()=>{if(Math.random()>0.92){document.body.style.opacity='0.95';setTimeout(()=>{document.body.style.opacity='1'},60);}},3000);
+
+// THEME TOGGLE
+const themeBtn=document.getElementById('theme-btn');
+if(themeBtn){
+  themeBtn.addEventListener('click',()=>{
+    document.body.classList.toggle('theme-b');
+    const isB=document.body.classList.contains('theme-b');
+    themeBtn.textContent=isB?'[ THEME A ]':'[ THEME B ]';
+    localStorage.setItem('d2hd2f-theme',isB?'b':'a');
+  });
+  const saved=localStorage.getItem('d2hd2f-theme');
+  if(saved==='b'){document.body.classList.add('theme-b');themeBtn.textContent='[ THEME A ]';}
+}
+
+// LANGUAGE
+const LANG={
+  en:{},
+  pt:{}
+};
+const langBtn=document.getElementById('lang-btn');
+let currentLang='en';
+if(langBtn){
+  langBtn.addEventListener('click',()=>{
+    currentLang=currentLang==='en'?'pt':'en';
+    langBtn.textContent=currentLang==='en'?'PT':'EN';
+    document.querySelectorAll('[data-en]').forEach(el=>{
+      el.textContent=currentLang==='en'?el.dataset.en:el.dataset.pt;
+    });
+    document.querySelectorAll('[data-en-html]').forEach(el=>{
+      el.innerHTML=currentLang==='en'?el.dataset.enHtml:el.dataset.ptHtml;
+    });
+    localStorage.setItem('d2hd2f-lang',currentLang);
+  });
+  const savedLang=localStorage.getItem('d2hd2f-lang');
+  if(savedLang==='pt'){langBtn.click();}
+}
+
+</script>
+</body>
+</html>
