@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Contact — Die2Hard Die2Fly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --or:#F26522;--or2:#FF8C42;
+  --blk:#0A0A0A;--wht:#F2EDE6;
+  --grey:#1C1C1C;--mid:#2A2A2A;
+  --serif:"IM Fell English",serif;
+  --vt:"VT323",monospace;
+  --mono:"Share Tech Mono",monospace;
+}
+body.theme-b{--blk:#F0EBE3;--wht:#0A0A0A;--grey:#E2DDD6;--mid:#D0CBC4;--or:#C44A00}
+body.theme-b .ticker-band,body.theme-b .mq-band{background:var(--or)}
+body.theme-b #cur svg polygon{fill:var(--or)}
+body.theme-b .trail{background:var(--or)}
+body.theme-b nav{background:var(--blk);border-bottom-color:var(--or)}
+body.theme-b .nav-drawer{background:var(--blk)}
+body.theme-b footer{background:var(--blk)}
+html{scroll-behavior:smooth}
+body{background:var(--blk);color:var(--wht);font-family:var(--mono);overflow-x:hidden;cursor:none;transition:background .4s,color .4s}
+#cur{position:fixed;top:0;left:0;width:24px;height:28px;z-index:99999;pointer-events:none}
+#cur svg{width:100%;height:100%}
+#cur.clicking svg polygon{fill:#fff}
+.trail{position:fixed;width:6px;height:6px;border-radius:50%;background:var(--or);pointer-events:none;z-index:99990;opacity:0;transform:translate(-50%,-50%)}
+@media(hover:none){#cur,.trail{display:none}body{cursor:auto}}
+body::after{content:"";position:fixed;inset:0;z-index:9998;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px)}
+body::before{content:"";position:fixed;inset:0;z-index:9997;pointer-events:none;opacity:0.028;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px 180px}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--blk)}::-webkit-scrollbar-thumb{background:var(--or);border-left:1px solid #000}
+.ticker-band{overflow:hidden;background:var(--or);padding:7px 0;white-space:nowrap;position:relative;z-index:50;border-bottom:2px solid #000}
+.ticker-track{display:inline-block;animation:tickRun 20s linear infinite;font-family:var(--vt);font-size:20px;color:var(--blk);letter-spacing:0.12em}
+.tsep{margin:0 18px;opacity:0.4}
+@keyframes tickRun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+nav{position:sticky;top:0;z-index:500;background:var(--blk);border-bottom:2px solid var(--or);display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:52px}
+nav::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--or)}
+.nav-logo{font-family:var(--vt);font-size:24px;color:var(--or);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;flex-shrink:0}
+.nav-logo em{font-style:normal;color:var(--wht)}
+body.theme-b .nav-logo em{color:var(--wht)}
+.nav-links{display:flex;list-style:none;gap:0;margin:0 auto}
+.nav-links a{font-family:var(--vt);font-size:16px;color:rgba(242,237,230,0.5);text-decoration:none;text-transform:uppercase;letter-spacing:0.1em;padding:0 16px;height:52px;display:flex;align-items:center;border-left:1px solid rgba(242,101,34,0.12);transition:background .15s,color .15s}
+.nav-links a:hover,.nav-links a.active{background:rgba(242,101,34,0.1);color:var(--or)}
+body.theme-b .nav-links a{color:rgba(10,10,10,0.5)}
+body.theme-b .nav-links a:hover,body.theme-b .nav-links a.active{color:var(--or)}
+.nav-controls{display:flex;align-items:center;gap:0;flex-shrink:0}
+.ctrl-btn{font-family:var(--vt);font-size:14px;letter-spacing:0.1em;color:rgba(242,101,34,0.6);background:transparent;border:none;padding:0 11px;height:52px;cursor:pointer;text-transform:uppercase;transition:color .15s,background .15s}
+.ctrl-btn:hover{background:rgba(242,101,34,0.08);color:var(--or)}
+.ctrl-sep{width:1px;height:24px;background:rgba(242,101,34,0.15);flex-shrink:0}
+.nav-cta{font-family:var(--vt);font-size:15px;letter-spacing:0.12em;color:var(--blk);background:var(--or);padding:5px 15px;text-decoration:none;text-transform:uppercase;border:2px solid var(--or);box-shadow:inset -2px -2px 0 rgba(0,0,0,0.4),inset 2px 2px 0 rgba(255,255,255,0.15);transition:background .15s;white-space:nowrap;margin-left:8px}
+.nav-cta:hover{background:var(--or2)}
+.back-btn{position:fixed;top:60px;left:0;z-index:400;font-family:var(--vt);font-size:14px;letter-spacing:0.14em;color:var(--blk);background:var(--or);padding:6px 14px 6px 10px;text-decoration:none;text-transform:uppercase;border-right:2px solid #000;border-bottom:2px solid #000;box-shadow:inset -1px -1px 0 rgba(0,0,0,0.3);transition:background .15s;display:flex;align-items:center;gap:6px}
+.back-btn:hover{background:var(--or2)}
+.back-btn::before{content:"◄";font-size:10px}
+.ham{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:transparent;border:none;cursor:pointer;padding:4px;z-index:600}
+.ham span{display:block;height:2px;background:var(--or);border-radius:1px;transition:transform .25s,opacity .25s}
+.ham.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.ham.open span:nth-child(2){opacity:0}
+.ham.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.nav-drawer{display:none;position:fixed;top:52px;left:0;right:0;background:var(--blk);border-bottom:2px solid var(--or);z-index:490;transform:translateY(-110%);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.nav-drawer.open{transform:translateY(0)}
+.drawer-links{display:flex;flex-direction:column}
+.drawer-links a{font-family:var(--vt);font-size:22px;color:rgba(242,237,230,0.6);text-decoration:none;text-transform:uppercase;letter-spacing:0.1em;padding:14px 28px;border-bottom:1px solid rgba(242,101,34,0.1);transition:color .15s,background .15s}
+.drawer-links a:hover{color:var(--or);background:rgba(242,101,34,0.07)}
+body.theme-b .drawer-links a{color:rgba(10,10,10,0.6)}
+.drawer-controls{display:flex;gap:2px;padding:14px 28px;border-top:1px solid rgba(242,101,34,0.15)}
+.drawer-controls .ctrl-btn{height:38px;font-size:15px;padding:0 14px;border:1px solid rgba(242,101,34,0.3)}
+.mq-band{overflow:hidden;background:var(--or);border-top:2px solid #000;border-bottom:2px solid #000;padding:10px 0;white-space:nowrap}
+.mq-track{display:inline-block;animation:mqRun 14s linear infinite;font-family:var(--serif);font-style:italic;font-size:24px;color:var(--blk);letter-spacing:0.03em}
+.ms{margin:0 24px;opacity:0.35}
+@keyframes mqRun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+section{position:relative;overflow:hidden}
+.sec-tag{font-family:var(--vt);font-size:15px;letter-spacing:0.3em;color:var(--or);text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:40px}
+.sec-tag::before{content:"//";color:rgba(242,101,34,0.4)}
+footer{background:var(--blk);border-top:2px solid var(--or);padding:24px 52px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.f-logo{font-family:var(--vt);font-size:20px;color:var(--or);letter-spacing:0.08em;text-decoration:none}
+.f-copy{font-family:var(--vt);font-size:13px;letter-spacing:0.12em;color:rgba(242,237,230,0.2);text-transform:uppercase}
+body.theme-b .f-copy{color:rgba(10,10,10,0.3)}
+.f-ig{font-family:var(--vt);font-size:13px;letter-spacing:0.15em;color:rgba(242,101,34,0.55);text-decoration:none;text-transform:uppercase;transition:color .2s}
+.f-ig:hover{color:var(--or)}
+.rev{opacity:0;transform:translateY(20px);transition:opacity .65s ease,transform .65s cubic-bezier(.16,1,.3,1)}
+.rev.on{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.07s}.d2{transition-delay:.14s}.d3{transition-delay:.21s}
+.d4{transition-delay:.28s}.d5{transition-delay:.35s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:860px){
+  nav{padding:0 14px}
+  .nav-links{display:none}
+  .ham{display:flex}
+  .nav-drawer{display:block}
+  .nav-controls{gap:0}
+  .ctrl-btn{font-size:12px;padding:0 7px}
+  .nav-cta{padding:5px 8px;font-size:13px;margin-left:3px}
+  footer{padding:18px 20px;justify-content:center;text-align:center;flex-direction:column;gap:8px}
+  .back-btn{font-size:12px;padding:5px 12px 5px 8px}
+}
+
+.contact-hero{position:relative;min-height:38vh;display:flex;flex-direction:column;justify-content:center;padding:70px 52px 50px;overflow:hidden;background:var(--blk)}
+.ch-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(242,101,34,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(242,101,34,0.08) 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
+.ch-stripe{position:absolute;top:-20%;right:-5%;width:52%;height:140%;background:var(--grey);transform:skewX(-8deg);z-index:1;pointer-events:none;overflow:hidden}
+.ch-stripe::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(242,101,34,0.055) 1px,transparent 1px),linear-gradient(90deg,rgba(242,101,34,0.055) 1px,transparent 1px);background-size:24px 24px}
+.ch-accent{position:absolute;left:0;top:0;bottom:0;width:6px;background:repeating-linear-gradient(180deg,var(--or) 0px,var(--or) 18px,transparent 18px,transparent 22px);z-index:10}
+.ch-eyebrow{font-family:var(--vt);font-size:16px;letter-spacing:.25em;color:var(--or);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;position:relative;z-index:5;opacity:0;animation:fadeUp .6s ease .1s forwards}
+.ch-eyebrow::before{content:"► ";font-size:10px}
+.ch-title{font-family:var(--serif);font-style:italic;line-height:.88;position:relative;z-index:5;opacity:0;animation:fadeUp .7s ease .25s forwards}
+.ch-t1{display:block;font-size:clamp(60px,10vw,130px);color:var(--or);text-shadow:4px 4px 0 #000,7px 7px 0 rgba(242,101,34,0.15)}
+.ch-t2{display:block;font-size:clamp(34px,6vw,78px);color:var(--wht);text-shadow:3px 3px 0 rgba(0,0,0,0.5)}
+body.theme-b .ch-t2{color:var(--wht)}
+.ch-sub{font-family:var(--vt);font-size:16px;letter-spacing:.2em;color:rgba(242,237,230,0.36);text-transform:uppercase;margin-top:18px;position:relative;z-index:5;opacity:0;animation:fadeUp .6s ease .4s forwards}
+body.theme-b .ch-sub{color:rgba(10,10,10,0.36)}
+
+/* MAIN GRID */
+.contact-main{display:grid;grid-template-columns:1.1fr 0.9fr;gap:2px;background:rgba(242,101,34,0.06);border-top:2px solid var(--or)}
+
+/* FORM PANEL */
+.contact-form-panel{background:var(--grey);padding:56px 48px}
+.panel-tag{font-family:var(--vt);font-size:12px;letter-spacing:.28em;color:rgba(242,101,34,0.5);text-transform:uppercase;margin-bottom:28px;display:flex;align-items:center;gap:6px}
+.panel-tag::before{content:"["}.panel-tag::after{content:"]"}
+.form-group{margin-bottom:22px}
+.form-label{font-family:var(--vt);font-size:13px;letter-spacing:.22em;color:rgba(242,101,34,0.6);text-transform:uppercase;display:block;margin-bottom:8px}
+.form-input,.form-textarea{width:100%;background:var(--blk);border:1px solid rgba(242,101,34,0.22);color:var(--wht);font-family:var(--vt);font-size:17px;letter-spacing:.04em;padding:11px 15px;outline:none;transition:border-color .2s,box-shadow .2s;appearance:none;-webkit-appearance:none}
+body.theme-b .form-input,body.theme-b .form-textarea{color:#f2ede6;background:rgba(0,0,0,0.5)}
+.form-input:focus,.form-textarea:focus{border-color:var(--or);box-shadow:0 0 0 2px rgba(242,101,34,0.12)}
+.form-input::placeholder,.form-textarea::placeholder{color:rgba(242,237,230,0.22)}
+.form-textarea{resize:vertical;min-height:110px;font-size:16px;line-height:1.7}
+
+/* INQUIRY TYPE TABS */
+.inq-tabs{display:flex;gap:2px;margin-bottom:0}
+.inq-tab{flex:1;font-family:var(--vt);font-size:16px;letter-spacing:.1em;color:rgba(242,237,230,0.5);background:var(--blk);border:1px solid rgba(242,101,34,0.18);padding:11px 8px;text-align:center;cursor:pointer;text-transform:uppercase;transition:background .15s,border-color .15s,color .15s;user-select:none}
+body.theme-b .inq-tab{color:rgba(10,10,10,0.5);background:rgba(0,0,0,0.15)}
+.inq-tab:hover{background:rgba(242,101,34,0.07);border-color:rgba(242,101,34,0.4);color:var(--or)}
+.inq-tab.active{background:rgba(242,101,34,0.14);border-color:var(--or);color:var(--or)}
+.inq-tab-panel{display:none;padding-top:2px}
+.inq-tab-panel.active{display:block}
+
+/* SERVICE GRID */
+.svc-select-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.svc-sel-card{background:var(--blk);border:1px solid rgba(242,101,34,0.15);padding:16px 18px;cursor:pointer;transition:background .15s,border-color .15s,transform .15s;user-select:none;display:flex;flex-direction:column;gap:6px}
+body.theme-b .svc-sel-card{background:rgba(0,0,0,0.12)}
+.svc-sel-card:hover{background:rgba(242,101,34,0.06);border-color:rgba(242,101,34,0.4);transform:translateY(-2px)}
+.svc-sel-card.selected{background:rgba(242,101,34,0.14);border-color:var(--or);border-width:1px}
+.svc-sel-card.selected::before{content:"✓ ";color:var(--or)}
+.ssc-name{font-family:var(--vt);font-size:17px;color:var(--wht);letter-spacing:.06em;line-height:1.2}
+body.theme-b .ssc-name{color:var(--wht)}
+.ssc-tag{font-family:var(--vt);font-size:11px;letter-spacing:.16em;color:rgba(242,101,34,0.5);text-transform:uppercase}
+
+/* OTHER OPTIONS */
+.other-opts{display:flex;flex-direction:column;gap:6px}
+.other-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid rgba(242,101,34,0.15);cursor:pointer;transition:background .15s,border-color .15s;user-select:none}
+body.theme-b .other-item{background:rgba(0,0,0,0.1)}
+.other-item:hover{background:rgba(242,101,34,0.06);border-color:rgba(242,101,34,0.36)}
+.other-item.selected{background:rgba(242,101,34,0.12);border-color:var(--or)}
+.chk-box{width:14px;height:14px;border:1px solid rgba(242,101,34,0.4);flex-shrink:0;position:relative;transition:background .15s,border-color .15s}
+.other-item.selected .chk-box{background:var(--or);border-color:var(--or)}
+.other-item.selected .chk-box::after{content:"";position:absolute;left:3px;top:1px;width:5px;height:8px;border-right:2px solid var(--blk);border-bottom:2px solid var(--blk);transform:rotate(38deg)}
+.other-lbl{font-family:var(--vt);font-size:16px;color:rgba(242,237,230,0.55);letter-spacing:.06em}
+body.theme-b .other-lbl{color:rgba(10,10,10,0.55)}
+.other-item.selected .other-lbl{color:var(--or)}
+
+/* SEND CHANNEL */
+.channel-label{font-family:var(--vt);font-size:13px;letter-spacing:.22em;color:rgba(242,101,34,0.6);text-transform:uppercase;display:block;margin-bottom:8px}
+.channel-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px}
+.chan-btn{font-family:var(--vt);font-size:16px;letter-spacing:.08em;color:rgba(242,237,230,0.48);background:var(--blk);border:1px solid rgba(242,101,34,0.18);padding:12px 6px;text-align:center;cursor:pointer;text-transform:uppercase;transition:background .15s,border-color .15s,color .15s;user-select:none;display:flex;align-items:center;justify-content:center;gap:6px}
+body.theme-b .chan-btn{color:rgba(10,10,10,0.48);background:rgba(0,0,0,0.12)}
+.chan-btn:hover{background:rgba(242,101,34,0.07);border-color:rgba(242,101,34,0.4);color:var(--or)}
+.chan-btn.selected{background:rgba(242,101,34,0.14);border-color:var(--or);color:var(--or)}
+.chan-icon{font-size:18px;line-height:1}
+
+.form-submit{width:100%;margin-top:14px;font-family:var(--vt);font-size:19px;letter-spacing:.2em;text-transform:uppercase;color:var(--blk);background:var(--or);border:2px solid var(--or);padding:15px;cursor:pointer;box-shadow:inset -2px -2px 0 rgba(0,0,0,0.3),inset 2px 2px 0 rgba(255,255,255,0.09);transition:background .15s,transform .12s}
+.form-submit:hover{background:var(--or2);transform:translateY(-2px)}
+.form-submit:active{transform:translateY(0)}
+.form-err{font-family:var(--vt);font-size:15px;color:#ff6b6b;letter-spacing:.08em;margin-top:8px;display:none;padding:8px 12px;border:1px solid rgba(255,107,107,0.3);background:rgba(255,107,107,0.06)}
+.form-err.show{display:block}
+
+.form-success{display:none;text-align:center;padding:48px 20px}
+.form-success.show{display:block}
+.success-icon{font-family:var(--vt);font-size:64px;color:var(--or);margin-bottom:14px;line-height:1}
+.success-title{font-family:var(--serif);font-style:italic;font-size:32px;color:var(--wht);margin-bottom:10px}
+body.theme-b .success-title{color:var(--wht)}
+.success-sub{font-family:var(--vt);font-size:16px;color:rgba(242,237,230,0.42);letter-spacing:.08em;line-height:1.75}
+
+/* INFO PANEL */
+.contact-info-panel{background:var(--blk);padding:56px 44px;display:flex;flex-direction:column;gap:0}
+.info-block{padding:24px 0;border-bottom:1px solid rgba(242,101,34,0.08)}
+.info-block:first-child{padding-top:0}
+.info-block:last-child{border-bottom:none}
+.info-block-label{font-family:var(--vt);font-size:11px;letter-spacing:.28em;color:rgba(242,101,34,0.44);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.info-block-label::before{content:"▸";font-size:10px;color:rgba(242,101,34,0.38)}
+.info-link{display:flex;align-items:center;gap:13px;padding:11px 14px;border:1px solid rgba(242,101,34,0.12);text-decoration:none;margin-bottom:7px;transition:background .15s,border-color .15s,transform .15s}
+.info-link:last-child{margin-bottom:0}
+.info-link:hover{background:rgba(242,101,34,0.06);border-color:rgba(242,101,34,0.35);transform:translateX(5px)}
+.il-icon{width:36px;height:36px;background:rgba(242,101,34,0.1);border:1px solid rgba(242,101,34,0.22);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--vt);font-size:16px;color:var(--or)}
+.il-text{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.il-main{font-family:var(--vt);font-size:15px;color:var(--wht);letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.theme-b .il-main{color:var(--wht)}
+.il-sub{font-family:var(--vt);font-size:11px;color:rgba(242,237,230,0.3);letter-spacing:.1em}
+.il-arrow{margin-left:auto;font-family:var(--vt);font-size:17px;color:rgba(242,101,34,0.38);flex-shrink:0}
+.dm-join{background:rgba(242,101,34,0.07);border:1px solid rgba(242,101,34,0.22);padding:20px 18px;margin-top:22px}
+.dm-join-title{font-family:var(--vt);font-size:20px;color:var(--or);letter-spacing:.06em;margin-bottom:6px;line-height:1}
+.dm-join-body{font-family:var(--vt);font-size:14px;color:rgba(242,237,230,0.42);letter-spacing:.05em;line-height:1.7;margin-bottom:12px}
+body.theme-b .dm-join-body{color:rgba(10,10,10,0.48)}
+.dm-join-link{display:inline-block;font-family:var(--vt);font-size:14px;letter-spacing:.16em;color:var(--blk);background:var(--or);padding:7px 16px;text-decoration:none;text-transform:uppercase;box-shadow:inset -2px -2px 0 rgba(0,0,0,0.28),inset 2px 2px 0 rgba(255,255,255,0.08);transition:background .15s}
+.dm-join-link:hover{background:var(--or2)}
+
+@media(max-width:860px){
+  .contact-hero{padding:60px 20px 40px}
+  .contact-main{grid-template-columns:1fr}
+  .contact-form-panel,.contact-info-panel{padding:44px 20px}
+  .svc-select-grid{grid-template-columns:1fr}
+  .channel-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="cur">
+  <svg viewBox="0 0 24 28" fill="none"><polygon points="2,2 2,22 7,17 11,26 13.5,25 9.5,16 16,16" fill="#F26522" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/></svg>
+</div>
+<div class="trail" id="t1"></div><div class="trail" id="t2"></div><div class="trail" id="t3"></div>
+<div class="trail" id="t4"></div><div class="trail" id="t5"></div>
+<div class="ticker-band">
+  <span class="ticker-track">
+    DIE2HARD <span class="tsep">★</span> DIE2FLY <span class="tsep">★</span>
+    CREATIVE ECOSYSTEM <span class="tsep">★</span> RAW TALENT <span class="tsep">★</span>
+    REAL PLATFORM <span class="tsep">★</span> INDIVIDUALITY OVER CONFORMITY <span class="tsep">★</span>
+    COMMUNITY BEFORE PROFIT <span class="tsep">★</span> VISUAL IDENTITY AS POWER <span class="tsep">★</span>
+    DIE2HARD <span class="tsep">★</span> DIE2FLY <span class="tsep">★</span>
+    CREATIVE ECOSYSTEM <span class="tsep">★</span> RAW TALENT <span class="tsep">★</span>
+    REAL PLATFORM <span class="tsep">★</span> INDIVIDUALITY OVER CONFORMITY <span class="tsep">★</span>
+    COMMUNITY BEFORE PROFIT <span class="tsep">★</span> VISUAL IDENTITY AS POWER <span class="tsep">★</span>
+  </span>
+</div>
+<nav>
+  <a class="nav-logo" href="index.html">Die2Hard <em>Die2Fly</em></a>
+  <button class="ham" id="ham"><span></span><span></span><span></span></button>
+  <ul class="nav-links"><li><a href="services.html" data-en="Services" data-pt="Serviços">Services</a></li><li><a href="about.html" data-en="About" data-pt="Sobre">About</a></li><li><a href="team.html" data-en="Team" data-pt="Equipa">Team</a></li><li><a href="process.html" data-en="Process" data-pt="Processo">Process</a></li><li><a href="contact.html" class="active" data-en="Contact" data-pt="Contacto">Contact</a></li></ul>
+  <div class="nav-controls">
+    <button class="ctrl-btn" id="lang-btn">PT</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="theme-btn">[ B ]</button>
+    <div class="ctrl-sep"></div>
+    <a class="nav-cta" href="contact.html" data-en="[ Contact ]" data-pt="[ Contacto ]">[ Contact ]</a>
+  </div>
+</nav>
+<div class="nav-drawer" id="nav-drawer">
+  <div class="drawer-links"><a href="index.html" data-en="Home" data-pt="Início">Home</a><a href="services.html" data-en="Services" data-pt="Serviços">Services</a><a href="about.html" data-en="About" data-pt="Sobre">About</a><a href="team.html" data-en="Team" data-pt="Equipa">Team</a><a href="process.html" data-en="Process" data-pt="Processo">Process</a><a href="contact.html" data-en="Contact" data-pt="Contacto">Contact</a></div>
+  <div class="drawer-controls">
+    <button class="ctrl-btn" id="lang-btn-m">PT</button>
+    <button class="ctrl-btn" id="theme-btn-m">[ THEME B ]</button>
+  </div>
+</div>
+<a class="back-btn" href="index.html" data-en="◄ Back" data-pt="◄ Voltar">◄ Back</a>
+
+<div class="contact-hero">
+  <div class="ch-grid"></div><div class="ch-stripe"></div><div class="ch-accent"></div>
+  <div class="ch-eyebrow" data-en="Get In Touch" data-pt="Entra em Contacto">Get In Touch</div>
+  <h1 class="ch-title">
+    <span class="ch-t1" data-en="Let's" data-pt="Vamos">Let's</span>
+    <span class="ch-t2" data-en="Talk." data-pt="Falar.">Talk.</span>
+  </h1>
+  <p class="ch-sub" data-en="Raw ideas welcome · No pitch needed · Just reach out" data-pt="Ideias bem-vindas · Sem pitch · Só envia">Raw ideas welcome · No pitch needed · Just reach out</p>
+</div>
+
+<div class="contact-main">
+
+  <!-- FORM -->
+  <div class="contact-form-panel">
+    <div class="panel-tag" data-en="Send a Message" data-pt="Envia uma Mensagem">Send a Message</div>
+
+    <div id="contact-form">
+
+      <!-- Name -->
+      <div class="form-group">
+        <label class="form-label" data-en="Your Name" data-pt="O Teu Nome">Your Name</label>
+        <input class="form-input" type="text" id="f-name"
+          data-en-placeholder="Who are you?" data-pt-placeholder="Quem és?"
+          placeholder="Who are you?" autocomplete="off"/>
+      </div>
+
+      <!-- Contact -->
+      <div class="form-group">
+        <label class="form-label" data-en="Email or Instagram" data-pt="Email ou Instagram">Email or Instagram</label>
+        <input class="form-input" type="text" id="f-contact"
+          data-en-placeholder="email@domain.com or @handle" data-pt-placeholder="email@dominio.com ou @handle"
+          placeholder="email@domain.com or @handle" autocomplete="off"/>
+      </div>
+
+      <!-- What brings you here + tabs -->
+      <div class="form-group">
+        <label class="form-label" data-en="What brings you here?" data-pt="O que te traz aqui?">What brings you here?</label>
+
+        <!-- TAB SWITCHER -->
+        <div class="inq-tabs">
+          <div class="inq-tab active" id="tab-svc" data-en="Services" data-pt="Serviços">Services</div>
+          <div class="inq-tab" id="tab-other" data-en="Other" data-pt="Outro">Other</div>
+        </div>
+
+        <!-- SERVICES TAB -->
+        <div class="inq-tab-panel active" id="panel-svc">
+          <div class="svc-select-grid" id="svc-grid">
+            <div class="svc-sel-card" data-svc="Visual Content Production">
+              <span class="ssc-name" data-en="Visual Content Production" data-pt="Produção de Conteúdo Visual">Visual Content Production</span>
+              <span class="ssc-tag" data-en="Photo · Video · Direction" data-pt="Foto · Vídeo · Direção">Photo · Video · Direction</span>
+            </div>
+            <div class="svc-sel-card" data-svc="Talent Platform">
+              <span class="ssc-name" data-en="Talent Platform" data-pt="Plataforma de Talentos">Talent Platform</span>
+              <span class="ssc-tag" data-en="Models · Artists · Creatives" data-pt="Modelos · Artistas · Criativos">Models · Artists · Creatives</span>
+            </div>
+            <div class="svc-sel-card" data-svc="Brand Identity & Visual Design">
+              <span class="ssc-name" data-en="Brand Identity &amp; Design" data-pt="Identidade de Marca &amp; Design">Brand Identity &amp; Design</span>
+              <span class="ssc-tag" data-en="Branding · Logos · Graphics" data-pt="Branding · Logos · Gráficos">Branding · Logos · Graphics</span>
+            </div>
+            <div class="svc-sel-card" data-svc="Events & Social Organisation">
+              <span class="ssc-name" data-en="Events &amp; Social" data-pt="Eventos &amp; Social">Events &amp; Social</span>
+              <span class="ssc-tag" data-en="Nightlife · Culture · Bars" data-pt="Vida Noturna · Cultura · Bares">Nightlife · Culture · Bars</span>
+            </div>
+            <div class="svc-sel-card" data-svc="Creative Direction & Strategy">
+              <span class="ssc-name" data-en="Creative Direction" data-pt="Direção Criativa">Creative Direction</span>
+              <span class="ssc-tag" data-en="Strategy · Campaigns" data-pt="Estratégia · Campanhas">Strategy · Campaigns</span>
+            </div>
+            <div class="svc-sel-card" data-svc="Social Media Management">
+              <span class="ssc-name" data-en="Social Media" data-pt="Redes Sociais">Social Media</span>
+              <span class="ssc-tag" data-en="Content · Distribution" data-pt="Conteúdo · Distribuição">Content · Distribution</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- OTHER TAB -->
+        <div class="inq-tab-panel" id="panel-other">
+          <div class="other-opts">
+            <div class="other-item" data-val="Work with you">
+              <div class="chk-box"></div>
+              <span class="other-lbl" data-en="I want to work with you" data-pt="Quero trabalhar convosco">I want to work with you</span>
+            </div>
+            <div class="other-item" data-val="Creative looking for platform">
+              <div class="chk-box"></div>
+              <span class="other-lbl" data-en="I'm a creative looking for a platform" data-pt="Sou um criativo à procura de plataforma">I'm a creative looking for a platform</span>
+            </div>
+            <div class="other-item" data-val="Collab / Event idea">
+              <div class="chk-box"></div>
+              <span class="other-lbl" data-en="I have a collab / event idea" data-pt="Tenho uma ideia de collab / evento">I have a collab / event idea</span>
+            </div>
+            <div class="other-item" data-val="Brand or business enquiry">
+              <div class="chk-box"></div>
+              <span class="other-lbl" data-en="Brand or business enquiry" data-pt="Enquiry de marca ou negócio">Brand or business enquiry</span>
+            </div>
+            <div class="other-item" data-val="Something else">
+              <div class="chk-box"></div>
+              <span class="other-lbl" data-en="Something else" data-pt="Outra coisa">Something else</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div class="form-group">
+        <label class="form-label" data-en="Your Message" data-pt="A Tua Mensagem">Your Message</label>
+        <textarea class="form-textarea" id="f-msg"
+          data-en-placeholder="Tell us what's on your mind." data-pt-placeholder="Diz-nos o que tens em mente."
+          placeholder="Tell us what's on your mind."></textarea>
+      </div>
+
+      <!-- SEND VIA -->
+      <div class="form-group">
+        <span class="channel-label" data-en="Send via" data-pt="Enviar via">Send via</span>
+        <div class="channel-row">
+          <div class="chan-btn selected" id="ch-wa">
+            <span class="chan-icon">📱</span>
+            <span data-en="WhatsApp" data-pt="WhatsApp">WhatsApp</span>
+          </div>
+          <div class="chan-btn" id="ch-email">
+            <span class="chan-icon">✉</span>
+            <span data-en="Gmail" data-pt="Gmail">Gmail</span>
+          </div>
+          <div class="chan-btn" id="ch-call">
+            <span class="chan-icon">📞</span>
+            <span data-en="Call" data-pt="Ligar">Call</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-err" id="f-err" data-en="Please fill in your name, contact, and select what brings you here." data-pt="Preenche o teu nome, contacto, e seleciona o motivo.">Please fill in your name, contact, and select what brings you here.</div>
+      <button class="form-submit" id="submit-btn" type="button" data-en="[ Send It → ]" data-pt="[ Enviar → ]">[ Send It → ]</button>
+    </div>
+
+    <div class="form-success" id="form-success">
+      <div class="success-icon">✓</div>
+      <div class="success-title" data-en="Sent." data-pt="Enviado.">Sent.</div>
+      <div class="success-sub" data-en="We'll get back to you shortly.&#10;Follow the journey @die2harddie2fly" data-pt="Responderemos em breve.&#10;Segue a jornada @die2harddie2fly">We'll get back to you shortly.<br>Follow the journey @die2harddie2fly</div>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="contact-info-panel">
+    <div class="info-block">
+      <div class="info-block-label" data-en="Reach Us" data-pt="Contacta-nos">Reach Us</div>
+      <a class="info-link" id="wa-direct" href="https://wa.me/351926769299" target="_blank">
+        <div class="il-icon">WA</div>
+        <div class="il-text"><span class="il-main">WhatsApp</span><span class="il-sub" data-en="Tap to message directly" data-pt="Toca para enviar mensagem">Tap to message directly</span></div>
+        <span class="il-arrow">↗</span>
+      </a>
+      <a class="info-link" href="mailto:die2harddie2fly@gmail.com">
+        <div class="il-icon">@</div>
+        <div class="il-text"><span class="il-main">die2harddie2fly@gmail.com</span><span class="il-sub" data-en="Email · Bookings &amp; Enquiries" data-pt="Email · Bookings &amp; Enquiries">Email</span></div>
+        <span class="il-arrow">↗</span>
+      </a>
+      <a class="info-link" href="https://www.instagram.com/die2harddie2fly" target="_blank">
+        <div class="il-icon">IG</div>
+        <div class="il-text"><span class="il-main">@die2harddie2fly</span><span class="il-sub" data-en="Instagram · DMs open" data-pt="Instagram · DMs abertos">Instagram · DMs open</span></div>
+        <span class="il-arrow">↗</span>
+      </a>
+      <a class="info-link" id="call-direct" href="tel:+351926769299">
+        <div class="il-icon">☎</div>
+        <div class="il-text"><span class="il-main" data-en="Call Us" data-pt="Liga-nos">Call Us</span><span class="il-sub" data-en="Tap to call" data-pt="Toca para ligar">Tap to call</span></div>
+        <span class="il-arrow">↗</span>
+      </a>
+    </div>
+    <div class="info-block">
+      <div class="info-block-label" data-en="Directors" data-pt="Diretores">Directors</div>
+      <a class="info-link" href="https://www.instagram.com/44mendxs" target="_blank">
+        <div class="il-icon">MG</div>
+        <div class="il-text"><span class="il-main">Mendes Gabriel</span><span class="il-sub">@44mendxs · Creative Director</span></div>
+        <span class="il-arrow">↗</span>
+      </a>
+      <a class="info-link" href="https://www.instagram.com/lowkeysofly" target="_blank">
+        <div class="il-icon">DF</div>
+        <div class="il-text"><span class="il-main">Daniel Ferreira</span><span class="il-sub">@lowkeysofly · Social Media</span></div>
+        <span class="il-arrow">↗</span>
+      </a>
+    </div>
+    <div class="dm-join">
+      <div class="dm-join-title" data-en="Creatives — Join The Team" data-pt="Criativos — Junta-te à Equipa">Creatives — Join The Team</div>
+      <div class="dm-join-body" data-en="DM your work to @die2harddie2fly. No pitch needed. Show us what you make." data-pt="Envia o teu trabalho para @die2harddie2fly. Sem pitch. Mostra-nos o que fazes.">DM your work to @die2harddie2fly. No pitch needed. Show us what you make.</div>
+      <a class="dm-join-link" href="https://www.instagram.com/die2harddie2fly" target="_blank">[ DM YOUR WORK ↗ ]</a>
+    </div>
+  </div>
+</div>
+
+<div class="mq-band">
+  <span class="mq-track">
+    Die2Hard Die2Fly <span class="ms">✦</span> Give Creatives A Voice <span class="ms">✦</span>
+    Underground To Commercial <span class="ms">✦</span> Build Bold. Stay Raw. <span class="ms">✦</span>
+    Platform. Structure. Access. <span class="ms">✦</span>
+    Die2Hard Die2Fly <span class="ms">✦</span> Give Creatives A Voice <span class="ms">✦</span>
+    Underground To Commercial <span class="ms">✦</span> Build Bold. Stay Raw. <span class="ms">✦</span>
+    Platform. Structure. Access. <span class="ms">✦</span>
+  </span>
+</div>
+<footer>
+  <a class="f-logo" href="index.html">DIE2HARD DIE2FLY</a>
+  <span class="f-copy">© 2026 — All Rights Reserved</span>
+  <a class="f-ig" href="https://www.instagram.com/die2harddie2fly" target="_blank">@die2harddie2fly ↗</a>
+</footer>
+<script>
+if(window.matchMedia('(hover:hover)').matches){
+  const cur=document.getElementById('cur');
+  const trails=[1,2,3,4,5].map(i=>document.getElementById('t'+i));
+  let mx=0,my=0;const hist=[];
+  document.addEventListener('mousemove',e=>{
+    mx=e.clientX;my=e.clientY;
+    cur.style.left=mx+'px';cur.style.top=my+'px';
+    hist.unshift({x:mx,y:my});if(hist.length>30)hist.pop();
+  });
+  document.addEventListener('mousedown',()=>cur.classList.add('clicking'));
+  document.addEventListener('mouseup',()=>setTimeout(()=>cur.classList.remove('clicking'),100));
+  (function a(){
+    trails.forEach((t,i)=>{
+      const idx=Math.min((i+1)*5,hist.length-1);
+      if(hist[idx]){t.style.left=hist[idx].x+'px';t.style.top=hist[idx].y+'px';t.style.opacity=(0.55-i*0.1).toString();t.style.transform=`translate(-50%,-50%) scale(${1-i*0.15})`;}
+    });
+    requestAnimationFrame(a);
+  })();
+}
+const ham=document.getElementById('ham');
+const drawer=document.getElementById('nav-drawer');
+if(ham&&drawer){
+  ham.addEventListener('click',()=>{ham.classList.toggle('open');drawer.classList.toggle('open');});
+  drawer.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');drawer.classList.remove('open');}));
+}
+const io=new IntersectionObserver(e=>e.forEach(n=>{if(n.isIntersecting)n.target.classList.add('on')}),{threshold:0.1});
+document.querySelectorAll('.rev').forEach(el=>io.observe(el));
+setInterval(()=>{if(Math.random()>0.92){document.body.style.opacity='0.95';setTimeout(()=>document.body.style.opacity='1',60);}},3000);
+function applyTheme(b){
+  document.body.classList.toggle('theme-b',b);
+  const lbl=b?'[ A ]':'[ B ]';const lblM=b?'[ THEME A ]':'[ THEME B ]';
+  document.querySelectorAll('#theme-btn,#theme-btn-m').forEach(btn=>{if(btn)btn.textContent=btn.id==='theme-btn'?lbl:lblM;});
+}
+const savedTheme=localStorage.getItem('d2h-theme');
+if(savedTheme==='b')applyTheme(true);
+document.querySelectorAll('#theme-btn,#theme-btn-m').forEach(btn=>{
+  if(btn)btn.addEventListener('click',()=>{const isB=document.body.classList.contains('theme-b');applyTheme(!isB);localStorage.setItem('d2h-theme',!isB?'b':'a');});
+});
+let lang=localStorage.getItem('d2h-lang')||'en';
+function applyLang(l){
+  lang=l;
+  document.querySelectorAll('[data-en]').forEach(el=>el.textContent=l==='en'?el.dataset.en:el.dataset.pt);
+  document.querySelectorAll('[data-en-html]').forEach(el=>el.innerHTML=l==='en'?el.dataset.enHtml:el.dataset.ptHtml);
+  document.querySelectorAll('[data-en-placeholder]').forEach(el=>el.placeholder=l==='en'?el.dataset.enPlaceholder:el.dataset.ptPlaceholder);
+  document.querySelectorAll('#lang-btn,#lang-btn-m').forEach(btn=>{if(btn)btn.textContent=l==='en'?'PT':'EN';});
+  localStorage.setItem('d2h-lang',l);
+}
+applyLang(lang);
+document.querySelectorAll('#lang-btn,#lang-btn-m').forEach(btn=>{
+  if(btn)btn.addEventListener('click',()=>applyLang(lang==='en'?'pt':'en'));
+});
+
+// ── TABS ──
+const tabSvc   = document.getElementById('tab-svc');
+const tabOther = document.getElementById('tab-other');
+const panelSvc   = document.getElementById('panel-svc');
+const panelOther = document.getElementById('panel-other');
+
+function setTab(t){
+  tabSvc.classList.toggle('active', t==='svc');
+  tabOther.classList.toggle('active', t==='other');
+  panelSvc.classList.toggle('active', t==='svc');
+  panelOther.classList.toggle('active', t==='other');
+}
+tabSvc.addEventListener('click', ()=>setTab('svc'));
+tabOther.addEventListener('click', ()=>setTab('other'));
+
+// ── SERVICE CARDS (multi-select) ──
+document.querySelectorAll('.svc-sel-card').forEach(card=>{
+  card.addEventListener('click', ()=> card.classList.toggle('selected'));
+});
+
+// ── OTHER OPTIONS (multi-select) ──
+document.querySelectorAll('.other-item').forEach(item=>{
+  item.addEventListener('click', ()=> item.classList.toggle('selected'));
+});
+
+// ── CHANNEL BUTTONS ──
+const channels = {wa:'wa', email:'email', call:'call'};
+let activeChannel = 'wa';
+document.getElementById('ch-wa').addEventListener('click', ()=>selectChannel('wa'));
+document.getElementById('ch-email').addEventListener('click', ()=>selectChannel('email'));
+document.getElementById('ch-call').addEventListener('click', ()=>selectChannel('call'));
+
+function selectChannel(c){
+  activeChannel = c;
+  ['ch-wa','ch-email','ch-call'].forEach(id=>{
+    document.getElementById(id).classList.toggle('selected', id.replace('ch-','')===c);
+  });
+}
+
+// ── BUILD SUMMARY of selections ──
+function getSelection(){
+  const svcCards = [...document.querySelectorAll('.svc-sel-card.selected')].map(c=>c.dataset.svc);
+  const otherItems = [...document.querySelectorAll('.other-item.selected')].map(i=>i.querySelector('.other-lbl').textContent.trim());
+  return [...svcCards, ...otherItems];
+}
+
+// ── VALIDATE & SEND ──
+document.getElementById('submit-btn').addEventListener('click', ()=>{
+  const name    = document.getElementById('f-name').value.trim();
+  const contact = document.getElementById('f-contact').value.trim();
+  const msg     = document.getElementById('f-msg').value.trim();
+  const sel     = getSelection();
+  const errEl   = document.getElementById('f-err');
+
+  if(!name || !contact || sel.length === 0){
+    errEl.classList.add('show');
+    setTimeout(()=>errEl.classList.remove('show'), 3500);
+    return;
+  }
+  errEl.classList.remove('show');
+
+  const selText = sel.join(', ');
+  const fullMsg = `Name: ${name}\nContact: ${contact}\nInterested in: ${selText}${msg ? '\n\nMessage:\n'+msg : ''}`;
+
+  if(activeChannel === 'call'){
+    window.location.href = 'tel:+935242536';
+    return;
+  }
+  if(activeChannel === 'wa'){
+    const waNum = '351926769299'; // ← replace with real number
+    window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(fullMsg), '_blank');
+  } else {
+    const subject = encodeURIComponent('D2HD2F — ' + selText);
+    window.location.href = 'mailto:die2harddie2fly@gmail.com?subject=' + subject + '&body=' + encodeURIComponent(fullMsg);
+  }
+
+  document.getElementById('contact-form').style.display = 'none';
+  document.getElementById('form-success').classList.add('show');
+});
+
+// Pre-select a service if passed via URL param: contact.html?service=Branding
+const urlParams = new URLSearchParams(window.location.search);
+const preService = urlParams.get('service');
+if(preService){
+  document.querySelectorAll('.svc-sel-card').forEach(card=>{
+    if(card.dataset.svc.toLowerCase().includes(preService.toLowerCase())){
+      card.classList.add('selected');
+    }
+  });
+}
+</script>
+</body>
+</html>
