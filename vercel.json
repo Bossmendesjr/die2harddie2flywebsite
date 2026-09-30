@@ -1,0 +1,30 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/api/public/:path*", "destination": "https://die2hard-studio.onrender.com/api/public/:path*" },
+    { "source": "/work/:slug", "destination": "/work/project.html" },
+    { "source": "/pt/work/:slug", "destination": "/pt/work/project.html" }
+  ],
+  "redirects": [
+    { "source": "/about.html", "destination": "/studio", "permanent": true },
+    { "source": "/team.html", "destination": "/studio", "permanent": true },
+    { "source": "/process.html", "destination": "/studio", "permanent": true },
+    { "source": "/services.html", "destination": "/services", "permanent": true },
+    { "source": "/contact.html", "destination": "/contact", "permanent": true }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800, immutable" }]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    }
+  ]
+}

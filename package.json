@@ -1,5 +1,9 @@
 {
-  "dependencies": {
-    "@vercel/analytics": "^2.0.1"
+  "name": "die2harddie2fly-web",
+  "private": true,
+  "version": "1.2.0",
+  "scripts": {
+    "dev": "py dev_server.py",
+    "preview": "py dev_server.py"
   }
 }
