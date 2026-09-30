@@ -1,3 +1,4 @@
+@font-face{font-family:'D2H Symbols';font-style:normal;font-weight:100 900;font-display:swap;src:url('../fonts/d2h-symbols.woff2') format('woff2')}
 @font-face{font-family:'Archivo Black';font-style:normal;font-weight:400;font-display:swap;src:url('../fonts/archivo-black-latin-400-normal.woff2') format('woff2')}
 @font-face{font-family:'IM Fell English';font-style:normal;font-weight:400;font-display:swap;src:url('../fonts/im-fell-english-latin-400-normal.woff2') format('woff2')}
 @font-face{font-family:'IM Fell English';font-style:italic;font-weight:400;font-display:swap;src:url('../fonts/im-fell-english-latin-400-italic.woff2') format('woff2')}
@@ -14,9 +15,9 @@
   --muted:#8D8984;
   --line:rgba(242,237,230,.2);
   --surface:#0D0D0D;
-  --display:'Archivo Black','Arial Black','Helvetica Neue',Arial,sans-serif;
-  --editorial:'IM Fell English',Georgia,serif;
-  --mono:'Share Tech Mono','Courier New',monospace;
+  --display:'Archivo Black','D2H Symbols','Arial Black','Helvetica Neue',Arial,sans-serif;
+  --editorial:'IM Fell English','D2H Symbols',Georgia,serif;
+  --mono:'Share Tech Mono','D2H Symbols','Courier New',monospace;
   --ease:cubic-bezier(.2,.75,.15,1);
   --shadow:8px 8px 0 #000;
 }

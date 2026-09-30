@@ -106,7 +106,7 @@ function syncThemeLabels(){
 
 function initStudioLinks(){
   const local=['localhost','127.0.0.1'].includes(location.hostname);
-  $$('[data-studio-link]').forEach(a=>a.href=local?'http://127.0.0.1:8000':'https://die2hard-studio.onrender.com');
+  $$('[data-studio-link]').forEach(a=>a.href=local?'http://127.0.0.1:8000':'https://studio.die2harddie2fly.com');
 }
 
 function initMenu(){
@@ -248,7 +248,7 @@ function storyCard(p,index){
   </a>`;
 }
 function emptyMarkup(apiError=false){
-  return `<section class="issue-zero reveal"><div class="zero-grid"></div><div><span class="kicker alt">${esc(apiError?C('unavailable'):C('emptyEyebrow'))}</span><h3>${apiError?'ARCHIVE<br><span>READY</span>':'ISSUE<br><span>ZERO</span>'}</h3><p>${esc(apiError?C('unavailableBody'):C('emptyBody'))}</p>${apiError?`<a class="button primary" data-studio-link href="http://localhost:8000">${D2H.lang==='pt'?'ENTRA NO D2H STUDIO':'ENTER D2H STUDIO'} ↗</a>`:''}</div><img class="zero-disc" src="/assets/decor/disc.svg" alt=""></section>`;
+  return `<section class="issue-zero reveal"><div class="zero-grid"></div><div><span class="kicker alt">${esc(apiError?C('unavailable'):C('emptyEyebrow'))}</span><h3>${apiError?'ARCHIVE<br><span>READY</span>':'ISSUE<br><span>ZERO</span>'}</h3><p>${esc(apiError?C('unavailableBody'):C('emptyBody'))}</p>${apiError?`<a class="button primary" data-studio-link href="${['localhost','127.0.0.1'].includes(location.hostname)?'http://127.0.0.1:8000':'https://studio.die2harddie2fly.com'}">${D2H.lang==='pt'?'ENTRA NO D2H STUDIO':'ENTER D2H STUDIO'} ↗</a>`:''}</div><img class="zero-disc" src="/assets/decor/disc.svg" alt=""></section>`;
 }
 
 async function renderHomeFeature(){
