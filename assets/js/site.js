@@ -106,7 +106,7 @@ function syncThemeLabels(){
 
 function initStudioLinks(){
   const local=['localhost','127.0.0.1'].includes(location.hostname);
-  $$('[data-studio-link]').forEach(a=>a.href=local?'http://127.0.0.1:8000':'https://die2hard-studio.onrender.com');
+  $$('[data-studio-link]').forEach(a=>a.href=local?'http://127.0.0.1:8000':'https://studio.die2harddie2fly.com');
 }
 
 function initMenu(){
