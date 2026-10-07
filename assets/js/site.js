@@ -256,7 +256,7 @@ async function renderHomeFeature(){
   const projects=await getProjects();
   if(!projects.length){host.innerHTML=emptyMarkup(Boolean(D2H.apiError));initReveals();initStudioLinks();return;}
   const p=projects[0],title=projectTitle(p),summary=projectSummary(p),services=(p.services||[]).join(' / ');
-  const hero=safeMediaUrl(p.hero_url)||safeMediaUrl(p.cover_url);
+  const hero=safeMediaUrl(p.cover_url)||safeMediaUrl(p.hero_url);
   host.innerHTML=`<div class="feature-story reveal"><a class="feature-media" data-cursor="${esc(C('view'))}" href="${esc(projectHref(p))}">${mediaMarkup(hero,title)}</a><aside class="feature-meta"><div><span class="kicker">${esc(C('feature'))}</span><h3>${esc(title)}</h3><p>${esc(summary||'')}</p></div><div><div class="feature-tags">${(p.services||[]).map(s=>`<span class="tag">${esc(s)}</span>`).join('')}${p.year?`<span class="tag">${esc(p.year)}</span>`:''}</div><a class="button primary" href="${esc(projectHref(p))}" style="margin-top:20px">${esc(C('view'))} ↗</a></div></aside></div>`;
   initReveals();
 }
