@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://die2harddie2fly.com/sitemap.xml
+Sitemap: https://www.die2harddie2fly.com/sitemap.xml
