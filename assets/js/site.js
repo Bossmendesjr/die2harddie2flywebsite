@@ -240,11 +240,22 @@ function driveInfo(url){
     return {id,image:`https://drive.google.com/thumbnail?id=${id}&sz=w2000${rk?`&resourcekey=${rk}`:''}`,player:`https://drive.google.com/file/d/${id}/preview${rk?`?resourcekey=${rk}`:''}`};
   }catch{return null;}
 }
+// Size the hero box to the Drive video's own shape (read from Drive's thumbnail), so Google's
+// player has no black bars and its controls sit on the picture.
+function fitDriveHero(root=document){
+  const frame=$('.project-hero-media iframe[data-drive-fit]',root);if(!frame)return;
+  const box=frame.closest('.project-hero-media'),img=new Image();img.referrerPolicy='no-referrer';
+  img.onload=()=>{const w=img.naturalWidth,h=img.naturalHeight;if(w<40||h<40)return;
+    const fit=()=>{const maxH=Math.round(window.innerHeight*.85);let fh=Math.round(box.clientWidth*h/w);box.style.height=Math.min(fh,maxH)+'px';
+      if(fh>maxH){frame.style.width=Math.round(maxH*w/h)+'px';frame.style.margin='0 auto';frame.style.display='block'}else{frame.style.width='100%';frame.style.margin=''}};
+    fit();window.addEventListener('resize',fit,{passive:true});};
+  img.src=frame.dataset.driveFit;
+}
 function mediaMarkup(url,title,{hero=false,driveEmbed=false}={}){
   const safe=safeMediaUrl(url);
   if(!safe)return `<div class="story-placeholder"><img src="/assets/brand/logo-orange.png" alt=""></div>`;
   const drive=driveInfo(safe);
-  if(drive&&hero&&driveEmbed)return `<iframe src="${esc(drive.player)}" title="${esc(title)}" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
+  if(drive&&hero&&driveEmbed)return `<iframe data-drive-fit="${esc(drive.image.replace('sz=w2000','sz=w640'))}" src="${esc(drive.player)}" title="${esc(title)}" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
   if(drive)return `<img src="${esc(drive.image)}" alt="${esc(title)}" loading="lazy" referrerpolicy="no-referrer">`;
   const v=videoInfo(safe);
   if(hero&&v?.type==='youtube')return `<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.id)}?rel=0&modestbranding=1" title="${esc(title)}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;
@@ -400,6 +411,7 @@ async function renderProject(){
     `;
     initReveals();
     $$('[data-slideshow]',root).forEach(initSlideshow);
+    fitDriveHero(root);
   }catch(err){
     root.innerHTML=`<div class="shell error-screen"><div><span class="kicker">404 / PROJECT</span><h1>404.</h1><p>${esc(C('project404'))}</p><a class="button primary" href="${localizedPath('/work/')}">${esc(C('backWork'))} ↗</a></div></div>`;
   }
