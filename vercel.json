@@ -8,11 +8,11 @@
     },
     {
       "source": "/work/:slug",
-      "destination": "/work/project.html"
+      "destination": "/work/project"
     },
     {
       "source": "/pt/work/:slug",
-      "destination": "/pt/work/project.html"
+      "destination": "/pt/work/project"
     }
   ],
   "redirects": [
