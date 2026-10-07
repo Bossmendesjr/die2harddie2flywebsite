@@ -409,3 +409,9 @@ html[data-theme='day'] .cover-art{background:linear-gradient(90deg,transparent 0
 .lb-count{position:absolute;top:26px;left:20px;font-size:12px;letter-spacing:.08em}
 html.lb-open,html.lb-open body{overflow:hidden}
 @media(max-width:700px){.ss-slide{height:min(62vh,560px)}.ss-btn{width:42px;height:42px}.lb-stage{padding:60px 8px}.lb-prev,.lb-next{top:auto;bottom:18px;transform:none}}
+
+/* PEOPLE PHOTOS (2026-10) */
+.person-photo{width:120px;height:120px;border-radius:50%;overflow:hidden;border:2px solid currentColor;margin:22px 0 0;background:var(--surface)}
+.person-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(.15) contrast(1.05)}
+.roster-grid .person.has-photo h3{margin-top:28px}
+@media(max-width:700px){.person-photo{width:96px;height:96px}}

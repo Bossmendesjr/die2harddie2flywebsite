@@ -431,7 +431,7 @@ async function renderPublicPeople(){
   people=[...people].sort((a,b)=>(Number(a.sort_order)||0)-(Number(b.sort_order)||0)||String(a.name).localeCompare(String(b.name)));
   host.innerHTML=people.map((p,i)=>{
     const role=localizedRole(p.role),href=instagramHref(p.handle);
-    return `<article class="person reveal"><span class="kicker ${i%3===2?'alt':''}">${esc((role||'D2H').toUpperCase())} / D2H</span><h3>${esc(p.name)}</h3><p>${esc(role)}</p>${p.handle?`<a class="person-handle" href="${esc(href)}" target="_blank" rel="noopener">${esc(p.handle)} ↗</a>`:''}</article>`;
+    return `<article class="person reveal${safeMediaUrl(p.photo_url)?' has-photo':''}"><span class="kicker ${i%3===2?'alt':''}">${esc((role||'D2H').toUpperCase())} / D2H</span>${safeMediaUrl(p.photo_url)?`<div class="person-photo"><img src="${esc(safeMediaUrl(p.photo_url))}" alt="${esc(p.name)}" loading="lazy"></div>`:''}<h3>${esc(p.name)}</h3><p>${esc(role)}</p>${p.handle?`<a class="person-handle" href="${esc(href)}" target="_blank" rel="noopener">${esc(p.handle)} ↗</a>`:''}</article>`;
   }).join('');
   initReveals();
 }
