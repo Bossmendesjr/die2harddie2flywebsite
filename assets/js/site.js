@@ -226,9 +226,26 @@ function videoInfo(url){
   }catch{}
   return null;
 }
-function mediaMarkup(url,title,{hero=false}={}){
+// Google Drive files shared as "Anyone with the link": images load through Drive's
+// thumbnail service; a Drive hero (usually a video) plays in Drive's own player.
+function driveInfo(url){
+  try{
+    const u=new URL(url);
+    if(!/^(drive|docs)\.google\.com$/i.test(u.hostname))return null;
+    const m=u.pathname.match(/^\/file\/d\/([A-Za-z0-9_-]{10,200})/);
+    const id=m?m[1]:(['/open','/uc','/thumbnail'].includes(u.pathname)?u.searchParams.get('id'):'');
+    if(!id||!/^[A-Za-z0-9_-]{10,200}$/.test(id))return null;
+    const key=u.searchParams.get('resourcekey')||'';
+    const rk=/^[A-Za-z0-9_-]{1,200}$/.test(key)?key:'';
+    return {id,image:`https://drive.google.com/thumbnail?id=${id}&sz=w2000${rk?`&resourcekey=${rk}`:''}`,player:`https://drive.google.com/file/d/${id}/preview${rk?`?resourcekey=${rk}`:''}`};
+  }catch{return null;}
+}
+function mediaMarkup(url,title,{hero=false,driveEmbed=false}={}){
   const safe=safeMediaUrl(url);
   if(!safe)return `<div class="story-placeholder"><img src="/assets/brand/logo-orange.png" alt=""></div>`;
+  const drive=driveInfo(safe);
+  if(drive&&hero&&driveEmbed)return `<iframe src="${esc(drive.player)}" title="${esc(title)}" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
+  if(drive)return `<img src="${esc(drive.image)}" alt="${esc(title)}" loading="lazy" referrerpolicy="no-referrer">`;
   const v=videoInfo(safe);
   if(hero&&v?.type==='youtube')return `<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.id)}?rel=0&modestbranding=1" title="${esc(title)}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;
   if(hero&&v?.type==='vimeo')return `<iframe src="https://player.vimeo.com/video/${esc(v.id)}?title=0&byline=0&portrait=0" title="${esc(title)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;
@@ -335,7 +352,7 @@ async function renderProject(){
     document.body.classList.add('project-layout-'+layout);
     root.innerHTML=`
       <section class="project-mast"><div class="shell"><div class="project-topline"><span>PROJECT / ${esc((p.kind||'WORK').toUpperCase())}</span><span>${esc(p.year||'D2H ARCHIVE')}</span></div><h1>${esc(title)}</h1><div class="project-services">${(p.services||[]).map(s=>`<span class="tag">${esc(s)}</span>`).join('')}</div></div></section>
-      <div class="project-hero-media">${mediaMarkup(p.hero_url||p.cover_url,title,{hero:true})}</div>
+      <div class="project-hero-media">${mediaMarkup(p.hero_url||p.cover_url,title,{hero:true,driveEmbed:!!safeMediaUrl(p.hero_url)})}</div>
       <section class="section"><div class="shell project-intro"><div><span class="kicker">${esc(C('process'))}</span>${summary?`<p class="project-summary">${esc(summary)}</p>`:''}</div><div class="project-body">${esc(body||summary||'')}</div></div></section>
       ${(p.gallery||[]).length?`<section class="section-tight"><div class="shell project-gallery">${p.gallery.map((url,i)=>`<figure class="reveal">${mediaMarkup(url,`${title} ${i+1}`)}</figure>`).join('')}</div></section>`:''}
       ${(p.credits||[]).length?`<section class="section"><div class="shell"><div class="mag-head"><div><span class="section-number">CREDITS</span><h2>${esc(C('credits'))}.</h2></div></div><div class="credits-grid">${p.credits.map(c=>`<div class="credit">${esc(c)}</div>`).join('')}</div></div></section>`:''}
