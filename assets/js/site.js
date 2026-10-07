@@ -333,6 +333,46 @@ function initWorkCategories(){
     card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});
   });
 }
+/* Gallery slideshow + full-screen viewer (project pages) */
+function slideshowMarkup(list,title){
+  const pt=D2H.lang==='pt',n=list.length,pad=v=>String(v).padStart(2,'0');
+  return `<div class="ss" data-slideshow>
+    <div class="ss-head"><span class="section-number">${pt?'GALERIA':'GALLERY'}</span><span class="ss-count" aria-live="polite"><b>01</b> / ${pad(n)}</span></div>
+    <div class="ss-track" tabindex="0" aria-label="${pt?'Galeria de imagens':'Image gallery'}">${list.map((url,i)=>`<figure class="ss-slide" data-ss-index="${i}">${mediaMarkup(url,`${title} ${i+1}`)}</figure>`).join('')}</div>
+    ${n>1?`<div class="ss-nav"><button type="button" class="ss-btn" data-ss-prev aria-label="${pt?'Anterior':'Previous'}">←</button><div class="ss-dots">${list.map((_,i)=>`<button type="button" class="ss-dot${i?'':' on'}" data-ss-go="${i}" aria-label="${i+1}"></button>`).join('')}</div><button type="button" class="ss-btn" data-ss-next aria-label="${pt?'Seguinte':'Next'}">→</button></div>`:''}
+  </div>`;
+}
+function initSlideshow(box){
+  const track=$('.ss-track',box),slides=$$('.ss-slide',box),count=$('.ss-count b',box),dots=$$('.ss-dot',box);
+  if(!track||!slides.length)return;
+  let cur=0;
+  const go=i=>{i=Math.max(0,Math.min(slides.length-1,i));track.scrollTo({left:slides[i].offsetLeft-track.offsetLeft,behavior:'smooth'});};
+  const sync=()=>{const w=slides[0].getBoundingClientRect().width||1;const i=Math.round(track.scrollLeft/w);if(i!==cur&&slides[i]){cur=i;if(count)count.textContent=String(i+1).padStart(2,'0');dots.forEach((d,k)=>d.classList.toggle('on',k===i));}};
+  track.addEventListener('scroll',()=>window.requestAnimationFrame(sync),{passive:true});
+  box.addEventListener('click',e=>{
+    if(e.target.closest('[data-ss-prev]'))return go(cur-1);
+    if(e.target.closest('[data-ss-next]'))return go(cur+1);
+    const dot=e.target.closest('[data-ss-go]');if(dot)return go(Number(dot.dataset.ssGo));
+    const img=e.target.closest('.ss-slide img');
+    if(img){const imgs=$$('.ss-slide img',box);openLightbox(imgs.map(x=>({src:x.currentSrc||x.src,alt:x.alt})),imgs.indexOf(img));}
+  });
+  track.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){e.preventDefault();go(cur+1);}if(e.key==='ArrowLeft'){e.preventDefault();go(cur-1);}});
+}
+function openLightbox(items,start){
+  if(!items.length)return;
+  const pt=D2H.lang==='pt';let i=Math.max(0,start||0);
+  const lb=document.createElement('div');lb.className='lb';lb.setAttribute('role','dialog');lb.setAttribute('aria-modal','true');
+  lb.innerHTML=`<button type="button" class="lb-close" aria-label="${pt?'Fechar':'Close'}">×</button><span class="lb-count"></span>${items.length>1?`<button type="button" class="lb-prev" aria-label="${pt?'Anterior':'Previous'}">←</button><button type="button" class="lb-next" aria-label="${pt?'Seguinte':'Next'}">→</button>`:''}<figure class="lb-stage"><img alt=""></figure>`;
+  const img=$('img',lb),cnt=$('.lb-count',lb);
+  const show=k=>{i=(k+items.length)%items.length;img.src=items[i].src;img.alt=items[i].alt||'';cnt.textContent=`${i+1} / ${items.length}`;};
+  const close=()=>{document.removeEventListener('keydown',key);lb.remove();document.documentElement.classList.remove('lb-open');};
+  const key=e=>{if(e.key==='Escape')close();if(e.key==='ArrowRight')show(i+1);if(e.key==='ArrowLeft')show(i-1);};
+  lb.addEventListener('click',e=>{if(e.target.closest('.lb-prev'))return show(i-1);if(e.target.closest('.lb-next'))return show(i+1);if(e.target.closest('.lb-close')||e.target===lb||e.target.classList.contains('lb-stage'))close();});
+  let x0=null;lb.addEventListener('touchstart',e=>{x0=e.touches[0].clientX},{passive:true});
+  lb.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>45)show(dx<0?i+1:i-1);},{passive:true});
+  document.addEventListener('keydown',key);
+  document.body.appendChild(lb);document.documentElement.classList.add('lb-open');show(i);$('.lb-close',lb).focus();
+}
 function currentSlug(){
   const m=location.pathname.match(/\/(?:pt\/)?work\/([^/?#]+)/);
   if(m && m[1] !== 'project.html') return decodeURIComponent(m[1]);
@@ -354,11 +394,12 @@ async function renderProject(){
       <section class="project-mast"><div class="shell"><div class="project-topline"><span>PROJECT / ${esc((p.kind||'WORK').toUpperCase())}</span><span>${esc(p.year||'D2H ARCHIVE')}</span></div><h1>${esc(title)}</h1><div class="project-services">${(p.services||[]).map(s=>`<span class="tag">${esc(s)}</span>`).join('')}</div></div></section>
       <div class="project-hero-media">${mediaMarkup(p.hero_url||p.cover_url,title,{hero:true,driveEmbed:!!safeMediaUrl(p.hero_url)})}</div>
       <section class="section"><div class="shell project-intro"><div><span class="kicker">${esc(C('process'))}</span>${summary?`<p class="project-summary">${esc(summary)}</p>`:''}</div><div class="project-body">${esc(body||summary||'')}</div></div></section>
-      ${(p.gallery||[]).length?`<section class="section-tight"><div class="shell project-gallery">${p.gallery.map((url,i)=>`<figure class="reveal">${mediaMarkup(url,`${title} ${i+1}`)}</figure>`).join('')}</div></section>`:''}
+      ${(p.gallery||[]).length?`<section class="section-tight"><div class="shell">${slideshowMarkup(p.gallery,title)}</div></section>`:''}
       ${(p.credits||[]).length?`<section class="section"><div class="shell"><div class="mag-head"><div><span class="section-number">CREDITS</span><h2>${esc(C('credits'))}.</h2></div></div><div class="credits-grid">${p.credits.map(c=>`<div class="credit">${esc(c)}</div>`).join('')}</div></div></section>`:''}
       <section class="section"><div class="shell issue-zero"><div class="zero-grid"></div><div><span class="kicker alt">${esc(C('next'))}</span><h3>KEEP<br><span>GOING.</span></h3><p>${D2H.lang==='pt'?'Volta ao arquivo para explorar o próximo projeto.':'Return to the archive and open the next story.'}</p><a class="button primary" href="${localizedPath('/work/')}">${esc(C('backWork'))} ↗</a></div><img class="zero-disc" src="/assets/decor/disc.svg" alt=""></section>
     `;
     initReveals();
+    $$('[data-slideshow]',root).forEach(initSlideshow);
   }catch(err){
     root.innerHTML=`<div class="shell error-screen"><div><span class="kicker">404 / PROJECT</span><h1>404.</h1><p>${esc(C('project404'))}</p><a class="button primary" href="${localizedPath('/work/')}">${esc(C('backWork'))} ↗</a></div></div>`;
   }
