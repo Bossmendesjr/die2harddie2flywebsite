@@ -248,7 +248,13 @@ function fitDriveHero(root=document){
   let ratio=16/9;
   const fit=()=>{const maxH=Math.round(window.innerHeight*(window.innerWidth<=700?.72:.85));const fh=Math.round(box.clientWidth/ratio);
     box.style.height=Math.min(fh,maxH)+'px';stage.style.width=fh>maxH?Math.round(maxH*ratio)+'px':'100%';};
-  const play=()=>{if(stage.querySelector('iframe'))return;
+  // iPhone/iPad: Safari draws its own video controls on top of Drive's, so the embedded player is unusable
+  // there. The poster stays on the page and the tap opens the video in Google Drive (app or full-screen viewer).
+  const ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(ios)stage.classList.add('ios');
+  const play=()=>{
+    if(ios){window.open(String(stage.dataset.player).replace('/preview','/view'),'_blank','noopener');return;}
+    if(stage.querySelector('iframe'))return;
     stage.insertAdjacentHTML('beforeend',`<iframe src="${esc(stage.dataset.player)}" title="${esc(stage.dataset.title||'')}" allow="autoplay; fullscreen" allowfullscreen></iframe>`);
     stage.classList.add('playing');};
   const img=$('img',stage);
@@ -258,7 +264,7 @@ function fitDriveHero(root=document){
   // Phones: a clean poster with one play button (Drive's own player is cramped and overlaps itself
   // when it sits idle on a small screen); tap loads the player in the same video-shaped box.
   // Larger screens load the player straight away, as before.
-  if(window.matchMedia('(max-width:700px)').matches)$('.drive-play',stage).addEventListener('click',play);else play();
+  if(ios||window.matchMedia('(max-width:700px)').matches)$('.drive-play',stage).addEventListener('click',play);else play();
 }
 // Shrink a display title until its longest word fits the box (keeps the design size when it already fits).
 function fitTitle(el,min=26){
@@ -279,7 +285,7 @@ function mediaMarkup(url,title,{hero=false,driveEmbed=false}={}){
   const safe=safeMediaUrl(url);
   if(!safe)return `<div class="story-placeholder"><img src="/assets/brand/logo-orange.png" alt=""></div>`;
   const drive=driveInfo(safe);
-  if(drive&&hero&&driveEmbed)return `<div class="drive-stage" data-drive-hero data-player="${esc(drive.player)}" data-title="${esc(title)}"><img src="${esc(drive.image.replace('sz=w2000','sz=w1280'))}" alt="${esc(title)}" referrerpolicy="no-referrer"><button type="button" class="drive-play" aria-label="${D2H.lang==='pt'?'Ver vídeo':'Play video'}"><span></span></button></div>`;
+  if(drive&&hero&&driveEmbed)return `<div class="drive-stage" data-drive-hero data-player="${esc(drive.player)}" data-title="${esc(title)}"><img src="${esc(drive.image.replace('sz=w2000','sz=w1280'))}" alt="${esc(title)}" referrerpolicy="no-referrer"><button type="button" class="drive-play" aria-label="${D2H.lang==='pt'?'Ver vídeo':'Play video'}"><span></span></button><small class="drive-note">${D2H.lang==='pt'?'Abre no Google Drive ↗':'Opens in Google Drive ↗'}</small></div>`;
   if(drive)return `<img src="${esc(drive.image)}" alt="${esc(title)}" loading="lazy" referrerpolicy="no-referrer">`;
   const v=videoInfo(safe);
   if(hero&&v?.type==='youtube')return `<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.id)}?rel=0&modestbranding=1" title="${esc(title)}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;

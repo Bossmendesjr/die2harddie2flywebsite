@@ -449,3 +449,5 @@ html.lb-open,html.lb-open body{overflow:hidden}
 .story-info>div,.talent-info>div{min-width:0}
 .story-info h3,.talent-info h3{overflow-wrap:break-word}
 .talent-bio{font:clamp(22px,2.4vw,36px)/1.1 var(--editorial);margin:16px 0 0;max-width:680px;white-space:pre-line}
+.drive-note{display:none;position:absolute;left:0;right:0;bottom:14px;text-align:center;font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#f1ece4;opacity:.8;pointer-events:none}
+.drive-stage.ios .drive-note{display:block}
