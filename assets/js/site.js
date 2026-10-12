@@ -63,7 +63,7 @@ const PUBLIC_PEOPLE_FALLBACK=[
 ];
 
 const $ = (s, root=document) => root.querySelector(s);
-const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+const $$ = (s, root=document) => { const r=typeof root==='string'?document.querySelector(root):root; return r?[...r.querySelectorAll(s)]:[]; };
 const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const C = key => D2H.copy[D2H.lang][key] || D2H.copy.en[key] || key;
 
@@ -243,19 +243,43 @@ function driveInfo(url){
 // Size the hero box to the Drive video's own shape (read from Drive's thumbnail), so Google's
 // player has no black bars and its controls sit on the picture.
 function fitDriveHero(root=document){
-  const frame=$('.project-hero-media iframe[data-drive-fit]',root);if(!frame)return;
-  const box=frame.closest('.project-hero-media'),img=new Image();img.referrerPolicy='no-referrer';
-  img.onload=()=>{const w=img.naturalWidth,h=img.naturalHeight;if(w<40||h<40)return;
-    const fit=()=>{const maxH=Math.round(window.innerHeight*.85);let fh=Math.round(box.clientWidth*h/w);box.style.height=Math.min(fh,maxH)+'px';
-      if(fh>maxH){frame.style.width=Math.round(maxH*w/h)+'px';frame.style.margin='0 auto';frame.style.display='block'}else{frame.style.width='100%';frame.style.margin=''}};
-    fit();window.addEventListener('resize',fit,{passive:true});};
-  img.src=frame.dataset.driveFit;
+  const stage=$('.project-hero-media [data-drive-hero]',root);if(!stage)return;
+  const box=stage.closest('.project-hero-media');box.classList.add('has-drive');
+  let ratio=16/9;
+  const fit=()=>{const maxH=Math.round(window.innerHeight*(window.innerWidth<=700?.72:.85));const fh=Math.round(box.clientWidth/ratio);
+    box.style.height=Math.min(fh,maxH)+'px';stage.style.width=fh>maxH?Math.round(maxH*ratio)+'px':'100%';};
+  const play=()=>{if(stage.querySelector('iframe'))return;
+    stage.insertAdjacentHTML('beforeend',`<iframe src="${esc(stage.dataset.player)}" title="${esc(stage.dataset.title||'')}" allow="autoplay; fullscreen" allowfullscreen></iframe>`);
+    stage.classList.add('playing');};
+  const img=$('img',stage);
+  const shape=()=>{const w=img.naturalWidth,h=img.naturalHeight;if(w>=40&&h>=40)ratio=w/h;fit();};
+  if(img.complete&&img.naturalWidth)shape();else{img.addEventListener('load',shape,{once:true});img.addEventListener('error',()=>{stage.classList.add('no-poster');fit();},{once:true});fit();}
+  window.addEventListener('resize',fit,{passive:true});
+  // Phones: a clean poster with one play button (Drive's own player is cramped and overlaps itself
+  // when it sits idle on a small screen); tap loads the player in the same video-shaped box.
+  // Larger screens load the player straight away, as before.
+  if(window.matchMedia('(max-width:700px)').matches)$('.drive-play',stage).addEventListener('click',play);else play();
 }
+// Shrink a display title until its longest word fits the box (keeps the design size when it already fits).
+function fitTitle(el,min=26){
+  if(!el||!el.isConnected)return;
+  el.style.fontSize='';
+  const words=(el.textContent||'').split(/\s+/).filter(Boolean);if(!words.length)return;
+  const probe=document.createElement('span');probe.style.cssText='position:absolute;visibility:hidden;white-space:nowrap;left:-9999px;top:0';
+  el.appendChild(probe);
+  const avail=el.clientWidth;let size=parseFloat(getComputedStyle(el).fontSize);
+  const widest=()=>Math.max(...words.map(w=>{probe.textContent=w;return probe.getBoundingClientRect().width;}));
+  for(let i=0;i<40&&size>min&&widest()>avail;i++){size=Math.max(min,Math.floor(size*.93));el.style.fontSize=size+'px';}
+  probe.remove();
+}
+function fitTitles(root=document){$$('.feature-meta h3,.project-mast h1,.talent-info h3,.story-info h3',root).forEach(el=>fitTitle(el));}
+let fitTimer;window.addEventListener('resize',()=>{clearTimeout(fitTimer);fitTimer=setTimeout(()=>fitTitles(),120);},{passive:true});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>fitTitles());
 function mediaMarkup(url,title,{hero=false,driveEmbed=false}={}){
   const safe=safeMediaUrl(url);
   if(!safe)return `<div class="story-placeholder"><img src="/assets/brand/logo-orange.png" alt=""></div>`;
   const drive=driveInfo(safe);
-  if(drive&&hero&&driveEmbed)return `<iframe data-drive-fit="${esc(drive.image.replace('sz=w2000','sz=w640'))}" src="${esc(drive.player)}" title="${esc(title)}" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
+  if(drive&&hero&&driveEmbed)return `<div class="drive-stage" data-drive-hero data-player="${esc(drive.player)}" data-title="${esc(title)}"><img src="${esc(drive.image.replace('sz=w2000','sz=w1280'))}" alt="${esc(title)}" referrerpolicy="no-referrer"><button type="button" class="drive-play" aria-label="${D2H.lang==='pt'?'Ver vídeo':'Play video'}"><span></span></button></div>`;
   if(drive)return `<img src="${esc(drive.image)}" alt="${esc(title)}" loading="lazy" referrerpolicy="no-referrer">`;
   const v=videoInfo(safe);
   if(hero&&v?.type==='youtube')return `<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.id)}?rel=0&modestbranding=1" title="${esc(title)}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;
@@ -286,7 +310,7 @@ async function renderHomeFeature(){
   const p=projects[0],title=projectTitle(p),summary=projectSummary(p),services=(p.services||[]).join(' / ');
   const hero=safeMediaUrl(p.cover_url)||safeMediaUrl(p.hero_url);
   host.innerHTML=`<div class="feature-story reveal"><a class="feature-media" data-cursor="${esc(C('view'))}" href="${esc(projectHref(p))}">${mediaMarkup(hero,title)}</a><aside class="feature-meta"><div><span class="kicker">${esc(C('feature'))}</span><h3>${esc(title)}</h3><p>${esc(summary||'')}</p></div><div><div class="feature-tags">${(p.services||[]).map(s=>`<span class="tag">${esc(s)}</span>`).join('')}${p.year?`<span class="tag">${esc(p.year)}</span>`:''}</div><a class="button primary" href="${esc(projectHref(p))}" style="margin-top:20px">${esc(C('view'))} ↗</a></div></aside></div>`;
-  initReveals();
+  initReveals();fitTitles(host);
 }
 
 async function renderHomeStories(){
@@ -295,7 +319,7 @@ async function renderHomeStories(){
   const list=projects.slice(1,5);
   if(!list.length){host.innerHTML='';const section=$('#latestSection');if(section)section.hidden=true;return;}
   host.innerHTML=list.map((p,i)=>storyCard(p,i+1)).join('');
-  initReveals();
+  initReveals();fitTitles(host);
 }
 
 async function renderWork(){
@@ -306,7 +330,7 @@ async function renderWork(){
   host.classList.add('story-grid');
   host.innerHTML=projects.map(storyCard).join('');
   buildFilters(projects);
-  initReveals();
+  initReveals();fitTitles(host);
 }
 function buildFilters(projects){
   const host=$('#filters');if(!host)return;
@@ -321,11 +345,11 @@ function buildFilters(projects){
 }
 
 const WORK_CATEGORIES={
-  visual:['visual content','film','video','photography','photo','production'],
+  visual:['visual content','film','video','photography','photo','production','editing','recording','vlog','live action','music video','visualizer'],
   talent:['talent','model','models','artist','artists','creative','creatives'],
   brand:['brand','branding','identity','design','visual design'],
   events:['event','events','culture','nightlife','social organisation'],
-  direction:['creative direction','direction','strategy']
+  direction:['creative direction','direction','directing','strategy']
 };
 function applyCategory(category){
   const aliases=WORK_CATEGORIES[category]||[];
@@ -336,10 +360,15 @@ function applyCategory(category){
     const vals=(card.dataset.services||'').split('|').filter(Boolean);
     card.hidden=category!=='all'&&!vals.some(v=>aliases.some(a=>v.includes(a)));
   });
+  const grid=$('#workGrid');let empty=$('.lane-empty',grid);
+  const none=cards.every(c=>c.hidden);
+  if(none&&!empty){empty=document.createElement('div');empty.className='lane-empty loading-card';grid.appendChild(empty);}
+  if(empty){empty.hidden=!none;empty.textContent=D2H.lang==='pt'?'Ainda não há projetos nesta categoria. Em breve.':'No projects in this lane yet. Coming soon.';}
+  if(document.body.dataset.page==='work'){const g=$('#workGrid');if(g)g.scrollIntoView({behavior:'smooth',block:'start'});}
 }
 function initWorkCategories(){
   $$('[data-work-category]').forEach(card=>{
-    const go=()=>{const key=card.dataset.workCategory||'all';if(document.body.dataset.page==='work')applyCategory(key);else location.href=localizedPath('/work/')+'?category='+encodeURIComponent(key);};
+    const go=()=>{const key=card.dataset.workCategory||'all';if(key==='talent'){location.href=localizedPath('/talent/');return;}if(document.body.dataset.page==='work')applyCategory(card.classList.contains('active')?'all':key);else location.href=localizedPath('/work/')+'?category='+encodeURIComponent(key);};
     card.addEventListener('click',go);
     card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});
   });
@@ -411,7 +440,7 @@ async function renderProject(){
     `;
     initReveals();
     $$('[data-slideshow]',root).forEach(initSlideshow);
-    fitDriveHero(root);
+    fitDriveHero(root);fitTitles(root);
   }catch(err){
     root.innerHTML=`<div class="shell error-screen"><div><span class="kicker">404 / PROJECT</span><h1>404.</h1><p>${esc(C('project404'))}</p><a class="button primary" href="${localizedPath('/work/')}">${esc(C('backWork'))} ↗</a></div></div>`;
   }
@@ -446,6 +475,61 @@ async function renderPublicPeople(){
     return `<article class="person reveal${safeMediaUrl(p.photo_url)?' has-photo':''}"><span class="kicker ${i%3===2?'alt':''}">${esc((role||'D2H').toUpperCase())} / D2H</span>${safeMediaUrl(p.photo_url)?`<div class="person-photo"><img src="${esc(safeMediaUrl(p.photo_url))}" alt="${esc(p.name)}" loading="lazy"></div>`:''}<h3>${esc(p.name)}</h3><p>${esc(role)}</p>${p.handle?`<a class="person-handle" href="${esc(href)}" target="_blank" rel="noopener">${esc(p.handle)} ↗</a>`:''}</article>`;
   }).join('');
   initReveals();
+}
+
+/* Talent: roster of models / artists / creatives with a profile each (data from D2H Studio). */
+function talentHref(t){return localizedPath('/talent/'+encodeURIComponent(t.slug));}
+function talentCard(t,i){
+  const pt=D2H.lang==='pt',pic=safeMediaUrl(t.cover_url)||safeMediaUrl(t.photo_url);
+  const meta=[t.city,t.details].filter(Boolean).join(' · ');
+  return `<a class="talent-card reveal" data-tilt data-cursor="${pt?'VER':'VIEW'}" href="${esc(talentHref(t))}">
+    <div class="talent-media">${pic?mediaMarkup(pic,t.name):`<div class="story-placeholder"><img src="/assets/brand/logo-orange.png" alt=""></div>`}<span class="story-badge">${esc((t.role||'TALENT').toUpperCase())}</span></div>
+    <div class="talent-info"><span class="story-no">${String(i+1).padStart(2,'0')}</span><div><h3>${esc(t.name)}</h3>${meta?`<p>${esc(meta)}</p>`:''}</div><span class="arrow">↗</span></div></a>`;
+}
+async function renderTalent(){
+  const host=$('#talentGrid');if(!host)return;
+  const pt=D2H.lang==='pt';
+  try{
+    const data=await fetchJSON('/talent');const list=Array.isArray(data.talent)?data.talent:[];
+    host.innerHTML=list.length?list.map(talentCard).join(''):`<div class="loading-card">${pt?'Os perfis estão a ser preparados. Em breve.':'Profiles are being prepared. Coming soon.'}</div>`;
+  }catch{host.innerHTML=`<div class="loading-card">${pt?'Não foi possível carregar o talento agora.':'Talent could not be loaded right now.'}</div>`}
+  initReveals();fitTitles(host);
+}
+function talentSlug(){const m=location.pathname.match(/\/(?:pt\/)?talent\/([^/?#]+)/);if(m&&m[1]!=='profile.html'&&m[1]!=='profile')return decodeURIComponent(m[1]);return new URLSearchParams(location.search).get('slug')||'';}
+async function renderTalentProfile(){
+  const root=$('#talentPage');if(!root)return;
+  const slug=talentSlug(),pt=D2H.lang==='pt';
+  if(!slug){location.replace(localizedPath('/talent/'));return;}
+  try{
+    const t=await fetchJSON('/talent/'+encodeURIComponent(slug));
+    document.title=`${t.name} — Talent — Die2Hard Die2Fly`;
+    const meta=$('meta[name="description"]');if(meta)meta.content=`${t.name} — ${t.role||'Talent'}${t.city?' · '+t.city:''}. Die2Hard Die2Fly.`;
+    const photo=safeMediaUrl(t.photo_url)||safeMediaUrl(t.cover_url);
+    const port=(t.portfolio||[]).filter(x=>safeMediaUrl(x));
+    const ig=t.handle?`https://instagram.com/${encodeURIComponent(String(t.handle).replace(/^@/,''))}`:'';
+    const projects=Array.isArray(t.projects)?t.projects:[];
+    root.innerHTML=`
+      <section class="project-mast talent-mast"><div class="shell"><div class="project-topline"><span>TALENT / ${esc((t.role||'D2H').toUpperCase())}</span><span>${esc(t.city||'D2H NETWORK')}</span></div><h1>${esc(t.name)}</h1><div class="project-services">${[t.role,t.city,...String(t.details||'').split('·')].map(x=>String(x||'').trim()).filter(Boolean).map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div></div></section>
+      <section class="section"><div class="shell talent-intro">
+        <div class="talent-portrait">${photo?mediaMarkup(photo,t.name):`<div class="story-placeholder"><img src="/assets/brand/logo-orange.png" alt=""></div>`}</div>
+        <div><span class="kicker">${pt?'PERFIL':'PROFILE'}</span><p class="talent-bio">${esc(t.bio||(pt?`${t.name} faz parte da rede Die2Hard Die2Fly.`:`${t.name} is part of the Die2Hard Die2Fly network.`))}</p>
+          <div class="talent-actions"><a class="button primary" href="#talentRequest">${pt?'PEDIR':'REQUEST'} ${esc(String(t.name).split(' ')[0].toUpperCase())} ↗</a>${ig?`<a class="button" href="${esc(ig)}" target="_blank" rel="noopener">INSTAGRAM ↗</a>`:''}</div></div>
+      </div></section>
+      ${port.length?`<section class="section-tight"><div class="shell">${slideshowMarkup(port,t.name)}</div></section>`:''}
+      ${projects.length?`<section class="section"><div class="shell"><div class="mag-head"><div><span class="section-number">${pt?'NO ARQUIVO':'IN THE ARCHIVE'}</span><h2>${pt?'TRABALHO.':'WORK.'}</h2></div></div><div class="story-grid">${projects.map((p,i)=>storyCard(p,i+1)).join('')}</div></div></section>`:''}
+      <section class="section" id="talentRequest"><div class="shell"><div class="mag-head"><div><span class="section-number">${pt?'PEDIDO':'REQUEST'} / ${esc(String(t.name).toUpperCase())}</span><h2>${pt?'TRABALHA COM':'WORK WITH'}<br>${esc(String(t.name).split(' ')[0].toUpperCase())}.</h2></div><p class="side-note">${pt?'Conta-nos o projeto. A equipa Die2Hard responde e trata da marcação.':'Tell us about the project. The Die2Hard team replies and handles the booking.'}</p></div>
+        <form class="form" id="talentForm" novalidate><div class="field"><label for="tName">${pt?'Nome':'Name'}</label><input id="tName" name="name" required maxlength="120" autocomplete="name"></div><div class="field"><label for="tEmail">Email</label><input id="tEmail" name="email" type="email" required maxlength="200" autocomplete="email"></div><div class="field"><label for="tCompany">${pt?'Marca / empresa':'Brand / company'}</label><input id="tCompany" name="company" maxlength="160"></div><div class="field"><label for="tDate">${pt?'Data':'Date'}</label><input id="tDate" name="target_date" maxlength="80" placeholder="${pt?'ex. 20 de novembro':'e.g. 20 November'}"></div><div class="field full"><label for="tMsg">${pt?'Projeto':'Project'}</label><textarea id="tMsg" name="message" required minlength="8" maxlength="4000"></textarea></div><input name="website" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true"><div class="field full"><button class="button primary" type="submit">${pt?'ENVIAR PEDIDO':'SEND REQUEST'} ↗</button><p class="form-status" id="talentStatus" aria-live="polite"></p></div></form></div></section>
+      <section class="section"><div class="shell"><a class="button" href="${localizedPath('/talent/')}">← ${pt?'TODO O TALENTO':'ALL TALENT'}</a></div></section>`;
+    initReveals();$$('[data-slideshow]',root).forEach(initSlideshow);fitTitles(root);
+    const form=$('#talentForm');
+    form.addEventListener('submit',async e=>{e.preventDefault();const btn=form.querySelector('button[type="submit"]'),status=$('#talentStatus');
+      if(!form.reportValidity())return;const body=Object.fromEntries(new FormData(form).entries());btn.disabled=true;status.textContent='';
+      try{await fetchJSON('/talent/'+encodeURIComponent(slug)+'/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});form.reset();status.textContent=pt?'Pedido recebido. Respondemos em breve.':'Request received. We’ll reply soon.';}
+      catch(err){status.textContent=(err.message&&err.message!=='Failed to fetch')?err.message:(pt?'Não foi possível enviar. Tenta outra vez.':'Could not send. Try again.');}
+      finally{btn.disabled=false;}});
+  }catch(err){
+    root.innerHTML=`<div class="shell error-screen"><div><span class="kicker">404 / TALENT</span><h1>404.</h1><p>${pt?'Este perfil não existe ou ainda não é público.':'This profile does not exist or is not public yet.'}</p><a class="button primary" href="${localizedPath('/talent/')}">${pt?'TODO O TALENTO':'ALL TALENT'} ↗</a></div></div>`;
+  }
 }
 
 function initContact(){
@@ -490,7 +574,7 @@ function initCoverStatus(){
 
 function init(){
   setLanguageLinks();initTheme();initStudioLinks();initMenu();initReveals();initParallax();initVinylScroll();initCursor();initTilt();initCoverStatus();
-  renderHomeFeature();renderHomeStories();renderWork().then(applyQueryFilter);initWorkCategories();renderProject();renderPublicPeople();initContact();initServices();
+  renderHomeFeature();renderHomeStories();renderWork().then(applyQueryFilter);initWorkCategories();renderProject();renderPublicPeople();renderTalent();renderTalentProfile();initContact();initServices();
 }
 
 document.addEventListener('DOMContentLoaded',init);

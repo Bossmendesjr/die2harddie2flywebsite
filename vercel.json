@@ -13,6 +13,14 @@
     {
       "source": "/pt/work/:slug",
       "destination": "/pt/work/project"
+    },
+    {
+      "source": "/talent/:slug",
+      "destination": "/talent/profile"
+    },
+    {
+      "source": "/pt/talent/:slug",
+      "destination": "/pt/talent/profile"
     }
   ],
   "redirects": [
