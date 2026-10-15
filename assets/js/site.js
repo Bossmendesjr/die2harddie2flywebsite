@@ -278,7 +278,7 @@ function fitTitle(el,min=26){
   for(let i=0;i<40&&size>min&&widest()>avail;i++){size=Math.max(min,Math.floor(size*.93));el.style.fontSize=size+'px';}
   probe.remove();
 }
-function fitTitles(root=document){$$('.feature-meta h3,.project-mast h1,.talent-info h3,.story-info h3',root).forEach(el=>fitTitle(el));}
+function fitTitles(root=document){$$('.feature-meta h3,.project-mast h1,.talent-info h3,.story-info h3',root).forEach(el=>fitTitle(el,el.matches('.story-info h3')?15:26));}
 let fitTimer;window.addEventListener('resize',()=>{clearTimeout(fitTimer);fitTimer=setTimeout(()=>fitTitles(),120);},{passive:true});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>fitTitles());
 function mediaMarkup(url,title,{hero=false,driveEmbed=false}={}){
@@ -295,11 +295,15 @@ function mediaMarkup(url,title,{hero=false,driveEmbed=false}={}){
   return `<img src="${esc(safe)}" alt="${esc(title)}" loading="lazy">`;
 }
 
+/* Tags: the Studio stores them in English; the PT site shows them in Portuguese. Core services come first. */
+const TAG_PT={'videography':'Videografia','photography':'Fotografia','visual design':'Design Visual','music video':'Videoclipe','visualizer':'Visualizer','promo':'Promo','event':'Evento','events':'Eventos','editorial':'Editorial','editing':'Edição','poster':'Cartaz','cover':'Capa','cover art':'Capa','live session':'Sessão ao vivo','website':'Website','branding':'Branding'};
+const CORE_TAGS=['videography','photography','visual design'];
+function tagLabel(t){const k=String(t||'').trim().toLowerCase();return D2H.lang==='pt'&&TAG_PT[k]?TAG_PT[k]:String(t||'');}
 function storyCard(p,index){
   const title=projectTitle(p)||'UNTITLED';
   const summary=projectSummary(p)||'';
   const cover=safeMediaUrl(p.cover_url)||safeMediaUrl(p.hero_url);
-  const services=(p.services||[]).join(' · ')||'PROJECT';
+  const services=(p.services||[]).map(tagLabel).join(' · ')||'PROJECT';
   return `<a class="story-card reveal" data-tilt data-cursor="${esc(C('view'))}" href="${esc(projectHref(p))}" data-services="${esc((p.services||[]).join('|').toLowerCase())}">
     <div class="story-media">${mediaMarkup(cover,title)}<span class="story-badge">${index===0?'COVER STORY':'D2H '+String(index+1).padStart(3,'0')}</span></div>
     <div class="story-info"><span class="story-no">${String(index+1).padStart(2,'0')}</span><div><h3>${esc(title)}</h3>${summary?`<p>${esc(summary)}</p>`:''}</div><div class="story-meta">${esc(services)}${p.year?`<br>${esc(p.year)}`:''}</div></div>
@@ -313,9 +317,9 @@ async function renderHomeFeature(){
   const host=$('#homeFeature');if(!host)return;
   const projects=await getProjects();
   if(!projects.length){host.innerHTML=emptyMarkup(Boolean(D2H.apiError));initReveals();initStudioLinks();return;}
-  const p=projects[0],title=projectTitle(p),summary=projectSummary(p),services=(p.services||[]).join(' / ');
+  const p=projects[0],title=projectTitle(p),summary=projectSummary(p),services=(p.services||[]).map(tagLabel).join(' / ');
   const hero=safeMediaUrl(p.cover_url)||safeMediaUrl(p.hero_url);
-  host.innerHTML=`<div class="feature-story reveal"><a class="feature-media" data-cursor="${esc(C('view'))}" href="${esc(projectHref(p))}">${mediaMarkup(hero,title)}</a><aside class="feature-meta"><div><span class="kicker">${esc(C('feature'))}</span><h3>${esc(title)}</h3><p>${esc(summary||'')}</p></div><div><div class="feature-tags">${(p.services||[]).map(s=>`<span class="tag">${esc(s)}</span>`).join('')}${p.year?`<span class="tag">${esc(p.year)}</span>`:''}</div><a class="button primary" href="${esc(projectHref(p))}" style="margin-top:20px">${esc(C('view'))} ↗</a></div></aside></div>`;
+  host.innerHTML=`<div class="feature-story reveal"><a class="feature-media" data-cursor="${esc(C('view'))}" href="${esc(projectHref(p))}">${mediaMarkup(hero,title)}</a><aside class="feature-meta"><div><span class="kicker">${esc(C('feature'))}</span><h3>${esc(title)}</h3><p>${esc(summary||'')}</p></div><div><div class="feature-tags">${(p.services||[]).map(s=>`<span class="tag">${esc(tagLabel(s))}</span>`).join('')}${p.year?`<span class="tag">${esc(p.year)}</span>`:''}</div><a class="button primary" href="${esc(projectHref(p))}" style="margin-top:20px">${esc(C('view'))} ↗</a></div></aside></div>`;
   initReveals();fitTitles(host);
 }
 
@@ -340,9 +344,11 @@ async function renderWork(){
 }
 function buildFilters(projects){
   const host=$('#filters');if(!host)return;
-  const services=[...new Set(projects.flatMap(p=>p.services||[]).map(String).filter(Boolean))].slice(0,10);
+  const count=new Map(),label=new Map();
+  projects.flatMap(p=>p.services||[]).map(x=>String(x).trim()).filter(Boolean).forEach(x=>{const k=x.toLowerCase();count.set(k,(count.get(k)||0)+1);if(!label.has(k))label.set(k,x);});
+  const services=[...count.keys()].sort((a,b)=>{const ca=CORE_TAGS.indexOf(a),cb=CORE_TAGS.indexOf(b);if(ca!==cb)return (ca<0?99:ca)-(cb<0?99:cb);return count.get(b)-count.get(a)||a.localeCompare(b);}).slice(0,16);
   if(!services.length){host.hidden=true;return;}
-  host.innerHTML=`<button class="active" data-filter="all">ALL</button>`+services.map(s=>`<button data-filter="${esc(s.toLowerCase())}">${esc(s)}</button>`).join('');
+  host.innerHTML=`<button class="active" data-filter="all">${D2H.lang==='pt'?'TODOS':'ALL'}</button>`+services.map(k=>`<button data-filter="${esc(k)}">${esc(tagLabel(label.get(k)))}</button>`).join('');
   host.addEventListener('click',e=>{
     const b=e.target.closest('button');if(!b)return;
     $$('button',host).forEach(x=>x.classList.toggle('active',x===b));
@@ -351,13 +357,17 @@ function buildFilters(projects){
 }
 
 const WORK_CATEGORIES={
-  visual:['visual content','film','video','photography','photo','production','editing','recording','vlog','live action','music video','visualizer'],
-  talent:['talent','model','models','artist','artists','creative','creatives'],
-  brand:['brand','branding','identity','design','visual design'],
-  events:['event','events','culture','nightlife','social organisation'],
-  direction:['creative direction','direction','directing','strategy']
+  videography:['videography','video','music video','visualizer','promo','live session','editing','film','recording','vlog'],
+  photography:['photography','photo','editorial','photoshoot','photo shoot'],
+  design:['visual design','design','cover','poster','artwork','website','identity','branding','flyer'],
+  events:['event','events','nightlife','culture'],
+  talent:['talent','model','models','artist','artists','creative','creatives']
 };
+// Old links (before v190) used other lane names.
+const LEGACY_CATEGORY={visual:'videography',brand:'design',direction:'all',production:'videography'};
 function applyCategory(category){
+  category=LEGACY_CATEGORY[category]||category;
+  if(category==='talent'){location.href=localizedPath('/talent/');return;}
   const aliases=WORK_CATEGORIES[category]||[];
   $$('.category-card').forEach(c=>c.classList.toggle('active',c.dataset.workCategory===category));
   const cards=$$('.story-card','#workGrid');
@@ -437,7 +447,7 @@ async function renderProject(){
     const meta=$('meta[name="description"]');if(meta&&seoDescription)meta.content=seoDescription;
     document.body.classList.add('project-layout-'+layout);
     root.innerHTML=`
-      <section class="project-mast"><div class="shell"><div class="project-topline"><span>PROJECT / ${esc((p.kind||'WORK').toUpperCase())}</span><span>${esc(p.year||'D2H ARCHIVE')}</span></div><h1>${esc(title)}</h1><div class="project-services">${(p.services||[]).map(s=>`<span class="tag">${esc(s)}</span>`).join('')}</div></div></section>
+      <section class="project-mast"><div class="shell"><div class="project-topline"><span>PROJECT / ${esc((p.kind||'WORK').toUpperCase())}</span><span>${esc(p.year||'D2H ARCHIVE')}</span></div><h1>${esc(title)}</h1><div class="project-services">${(p.services||[]).map(s=>`<span class="tag">${esc(tagLabel(s))}</span>`).join('')}</div></div></section>
       <div class="project-hero-media">${mediaMarkup(p.hero_url||p.cover_url,title,{hero:true,driveEmbed:!!safeMediaUrl(p.hero_url)})}</div>
       <section class="section"><div class="shell project-intro"><div><span class="kicker">${esc(C('process'))}</span>${summary?`<p class="project-summary">${esc(summary)}</p>`:''}</div><div class="project-body">${esc(body||summary||'')}</div></div></section>
       ${(p.gallery||[]).length?`<section class="section-tight"><div class="shell">${slideshowMarkup(p.gallery,title)}</div></section>`:''}
@@ -556,6 +566,7 @@ function initServices(){
   $$('.department').forEach(row=>{
     row.addEventListener('click',()=>{
       const value=row.dataset.service||'';
+      if(value.toLowerCase()==='talent'){location.href=localizedPath('/talent/');return;}
       location.href=localizedPath('/work/')+(value?`?service=${encodeURIComponent(value)}`:'');
     });
   });
@@ -566,8 +577,9 @@ function applyQueryFilter(){
   const q=params.get('service');if(!q)return;
   const target=q.toLowerCase();
   const categoryByService={
-    'visual content production':'visual','talent platform & development':'talent','brand identity & visual design':'brand',
-    'events & social organisation':'events','creative direction & strategy':'direction'
+    'videography':'videography','photography':'photography','visual design':'design','events':'events','talent':'talent',
+    'visual content production':'videography','talent platform & development':'talent','brand identity & visual design':'design',
+    'events & social organisation':'events','creative direction & strategy':'all'
   };
   if(categoryByService[target]){setTimeout(()=>applyCategory(categoryByService[target]),180);return;}
   const check=()=>{const b=$(`#filters button[data-filter="${CSS.escape(target)}"]`);if(b)b.click();};setTimeout(check,180);
